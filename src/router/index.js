@@ -4,6 +4,7 @@ import { useGlobalDataStore } from '@/stores/index'
 import HomeView from '@/views/HomeView.vue'
 import DetectionView from '@/views/DetectionView.vue'
 import ComparisonView from '@/views/ComparisonView.vue'
+import WorkspaceView from '@/views/WorkspaceView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 
@@ -16,6 +17,12 @@ const routes = [
     name: 'Detection', 
     component: DetectionView,
     meta: { requiresAuth: true } // 标记需要登录
+  },
+  {
+    path: '/workspace',
+    name: 'Workspace',
+    component: WorkspaceView,
+    meta: { requiresAuth: true }
   },
   { 
     path: '/comparison', 
