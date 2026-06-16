@@ -20,15 +20,6 @@
         <router-link to="/dashboard" active-class="active" class="nav-link">
           <span class="link-content">统计</span>
         </router-link>
-        <router-link to="/rulesets" active-class="active" class="nav-link">
-          <span class="link-content">规则</span>
-        </router-link>
-        <router-link to="/evaluations" active-class="active" class="nav-link">
-          <span class="link-content">评测</span>
-        </router-link>
-        <router-link to="/settings/models" active-class="active" class="nav-link">
-          <span class="link-content">模型</span>
-        </router-link>
       </nav>
 
       <div class="actions">
@@ -115,7 +106,7 @@ const handleLogout = () => {
 /* --- 2. 中间导航 --- */
 .main-nav {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.03);
   padding: 4px;
   border-radius: 99px;
@@ -128,7 +119,7 @@ const handleLogout = () => {
 .nav-link {
   color: var(--text-secondary);
   font-weight: 500;
-  padding: 6px 10px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.9rem;
   transition: all 0.3s;
