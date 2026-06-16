@@ -14,6 +14,12 @@
         <router-link to="/comparison" active-class="active" class="nav-link">
           <span class="link-content">代码对比</span>
         </router-link>
+        <router-link to="/workspace" active-class="active" class="nav-link">
+          <span class="link-content">工作台</span>
+        </router-link>
+        <router-link to="/dashboard" active-class="active" class="nav-link">
+          <span class="link-content">统计</span>
+        </router-link>
       </nav>
 
       <div class="actions">
@@ -113,7 +119,7 @@ const handleLogout = () => {
 .nav-link {
   color: var(--text-secondary);
   font-weight: 500;
-  padding: 6px 20px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.9rem;
   transition: all 0.3s;

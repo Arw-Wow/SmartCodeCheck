@@ -41,5 +41,41 @@ export default {
   },
   createPrompt(data) {
     return v2Client.post('/prompts', data)
+  },
+  getRuleSets() {
+    return v2Client.get('/rulesets')
+  },
+  createRuleSet(data) {
+    return v2Client.post('/rulesets', data)
+  },
+  deleteRuleSet(id) {
+    return v2Client.delete(`/rulesets/${id}`)
+  },
+  previewFix(data) {
+    return v2Client.post('/fixes/preview', data)
+  },
+  applyFix(data) {
+    return v2Client.post('/fixes/apply', data)
+  },
+  runValidation(data) {
+    return v2Client.post('/validation/run', data)
+  },
+  createEvaluation(data) {
+    return v2Client.post('/evaluations', data)
+  },
+  getEvaluations() {
+    return v2Client.get('/evaluations')
+  },
+  getStatsOverview() {
+    return v2Client.get('/stats/overview')
+  },
+  getStatsIssues() {
+    return v2Client.get('/stats/issues')
+  },
+  getStatsTrends() {
+    return v2Client.get('/stats/trends')
+  },
+  getRuns() {
+    return v2Client.get('/runs')
   }
 }
