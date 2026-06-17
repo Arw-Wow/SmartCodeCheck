@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const v2Client = axios.create({
   baseURL: 'http://localhost:8000/api/v2',
-  timeout: 60000,
+  timeout: 600000,
   headers: { 'Content-Type': 'application/json' }
 })
 
@@ -65,6 +65,12 @@ export default {
   },
   getEvaluations() {
     return v2Client.get('/evaluations')
+  },
+  getEvaluation(id) {
+    return v2Client.get(`/evaluations/${id}`)
+  },
+  exportEvaluation(id, format = 'json') {
+    return v2Client.get(`/evaluations/${id}/export`, { params: { format } })
   },
   getStatsOverview() {
     return v2Client.get('/stats/overview', { params: { _: Date.now() } })
