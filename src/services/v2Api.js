@@ -48,6 +48,9 @@ export default {
   createRuleSet(data) {
     return v2Client.post('/rulesets', data)
   },
+  updateRuleSet(id, data) {
+    return v2Client.put(`/rulesets/${id}`, data)
+  },
   deleteRuleSet(id) {
     return v2Client.delete(`/rulesets/${id}`)
   },

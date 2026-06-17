@@ -24,6 +24,10 @@
     </section>
 
     <section class="form-panel">
+      <div v-if="editingId" class="edit-banner">
+        <span>正在编辑：{{ draft.name }}</span>
+        <button type="button" @click="resetDraft">取消编辑</button>
+      </div>
       <div class="form-row">
         <input v-model="draft.name" placeholder="规则集名称，例如：后端团队编码规范" />
         <label class="file-control">
@@ -41,19 +45,22 @@
       ></textarea>
       <div class="form-footer">
         <p>{{ documentStats }}</p>
-        <button :disabled="loading" @click="createStandard">{{ loading ? '创建中...' : '新建规则集' }}</button>
+        <button :disabled="loading" @click="saveStandard">{{ loading ? '保存中...' : submitLabel }}</button>
       </div>
       <p v-if="error" class="error">{{ error }}</p>
     </section>
 
     <section class="list">
-      <article v-for="item in ruleSets" :key="item.id" class="row">
-        <div>
+      <article v-for="item in ruleSets" :key="item.id" class="row" :class="{ active: item.id === editingId }">
+        <div class="row-main">
           <strong>{{ item.name }}</strong>
           <span>{{ standardLabel(item) }}</span>
           <small v-if="standardExcerpt(item)">{{ standardExcerpt(item) }}</small>
         </div>
-        <button @click="remove(item.id)">删除</button>
+        <div class="row-actions">
+          <button @click="startEdit(item)">编辑</button>
+          <button @click="remove(item.id)">删除</button>
+        </div>
       </article>
       <p v-if="!ruleSets.length" class="empty">还没有规则集。先上传或粘贴规范文档，再到工作台选择使用。</p>
     </section>
@@ -67,16 +74,19 @@ import v2Api from '@/services/v2Api'
 const ruleSets = ref([])
 const loading = ref(false)
 const error = ref('')
+const editingId = ref(null)
 const draft = reactive({
   name: '',
   content: '',
-  fileName: ''
+  fileName: '',
+  documentTitle: '团队规范文档'
 })
 
+const submitLabel = computed(() => editingId.value ? '保存修改' : '新建规则集')
 const documentStats = computed(() => {
   const length = draft.content.trim().length
   if (!length) return '支持上传或粘贴文本规范文档，正文会作为跨维度检测标准。'
-  return `已载入 ${length} 个字符，将作为工作台分析的检测标准。`
+  return `${editingId.value ? '已载入已有文档' : '已载入'} ${length} 个字符，将作为工作台分析的检测标准。`
 })
 
 async function load() {
@@ -94,6 +104,7 @@ async function handleFileUpload(event) {
   try {
     draft.content = await file.text()
     draft.fileName = file.name
+    draft.documentTitle = file.name
     if (!draft.name.trim()) {
       draft.name = file.name.replace(/\.[^.]+$/, '') || file.name
     }
@@ -105,7 +116,7 @@ async function handleFileUpload(event) {
   }
 }
 
-async function createStandard() {
+async function saveStandard() {
   if (!draft.name.trim() || !draft.content.trim()) {
     error.value = '请填写规则集名称并上传或粘贴规范文档'
     return
@@ -113,16 +124,19 @@ async function createStandard() {
   loading.value = true
   error.value = ''
   try {
-    await v2Api.createRuleSet({
+    const payload = {
       name: draft.name.trim(),
       description: draft.fileName ? `上传自 ${draft.fileName}` : '从规范文档创建',
       visibility: 'private',
       standard_document: draft.content.trim(),
-      document_title: draft.fileName || '团队规范文档'
-    })
-    draft.name = ''
-    draft.content = ''
-    draft.fileName = ''
+      document_title: draft.documentTitle || draft.fileName || '团队规范文档'
+    }
+    if (editingId.value) {
+      await v2Api.updateRuleSet(editingId.value, payload)
+    } else {
+      await v2Api.createRuleSet(payload)
+    }
+    resetDraft()
     await load()
   } catch (err) {
     error.value = err.response?.data?.detail?.message || err.message
@@ -131,8 +145,29 @@ async function createStandard() {
   }
 }
 
+function startEdit(item) {
+  const rule = primaryRule(item)
+  editingId.value = item.id
+  draft.name = item.name || ''
+  draft.content = rule?.content || ''
+  draft.documentTitle = rule?.title || '团队规范文档'
+  draft.fileName = rule?.title || ''
+  error.value = ''
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function resetDraft() {
+  editingId.value = null
+  draft.name = ''
+  draft.content = ''
+  draft.fileName = ''
+  draft.documentTitle = '团队规范文档'
+  error.value = ''
+}
+
 async function remove(id) {
   if (!confirm('确定删除这个规则集吗？')) return
+  if (editingId.value === id) resetDraft()
   await v2Api.deleteRuleSet(id)
   await load()
 }
@@ -186,6 +221,14 @@ button {
 .row small,
 .empty { color: var(--text-secondary); font-size: .86rem; line-height: 1.5; }
 .form-panel { display: grid; gap: 10px; padding: 14px; }
+.edit-banner {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  color: #fbbf24;
+  font-size: .88rem;
+}
 .form-row { display: flex; gap: 10px; align-items: center; }
 .form-row input { flex: 1; min-width: 0; }
 .file-control {
@@ -231,15 +274,19 @@ textarea {
 }
 .list { display: grid; gap: 8px; }
 .row { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 12px; }
-.row div { display: grid; gap: 4px; }
+.row-main { display: grid; gap: 4px; min-width: 0; }
+.row.active { border-color: #fbbf24; background: rgba(251,191,36,.08); }
+.row-actions { display: flex; gap: 8px; align-items: center; }
 .error { color: #ff6b6b; margin: 0; }
 .empty { margin: 6px 0; }
 @media (max-width: 860px) {
   .page-head,
+  .edit-banner,
   .form-row,
   .form-footer,
   .row { align-items: stretch; flex-direction: column; }
   .usage-panel { grid-template-columns: 1fr; }
   .file-control { max-width: none; }
+  .row-actions { align-items: stretch; flex-direction: column; }
 }
 </style>

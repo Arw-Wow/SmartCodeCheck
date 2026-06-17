@@ -64,10 +64,10 @@ const DIMENSION_LABELS = {
 }
 
 const SEVERITY_PENALTY = {
-  critical: 28,
-  high: 20,
-  medium: 11,
-  low: 5,
+  critical: 25,
+  high: 18,
+  medium: 10,
+  low: 4,
   info: 1
 }
 
