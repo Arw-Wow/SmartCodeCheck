@@ -5,12 +5,12 @@
         <h2>批量检测</h2>
         <p>支持 JSONL、多行 JSON 对象或 JSON 数组；每条样本至少包含 `id`、`language`、`code` 字段。</p>
       </div>
-      <button class="primary-action" :disabled="submitting" @click="submit">
+      <button class="primary-action" data-tour-id="evaluations-run" :disabled="submitting" @click="submit">
         {{ submitting ? '检测中...' : '运行 JSONL' }}
       </button>
     </section>
 
-    <section class="config-panel">
+    <section class="config-panel" data-tour-id="evaluations-config">
       <div class="mode-row">
         <button
           v-for="mode in modes"
@@ -60,7 +60,7 @@
       </label>
     </section>
 
-    <section class="jsonl-panel">
+    <section class="jsonl-panel" data-tour-id="evaluations-jsonl">
       <div class="upload-row">
         <label class="file-picker">
           上传 JSONL
@@ -86,7 +86,7 @@
       </div>
     </section>
 
-    <section class="workspace-grid">
+    <section class="workspace-grid" data-tour-id="evaluations-results">
       <aside class="history-panel">
         <div class="section-title">
           <strong>批量历史</strong>

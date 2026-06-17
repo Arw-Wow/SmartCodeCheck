@@ -13,7 +13,7 @@
         </div>
 
         <div class="header-controls">
-          <div class="status-pills" @click="showConfig = !showConfig" title="点击展开详细配置">
+          <div class="status-pills" data-tour-id="comparison-config-toggle" @click="showConfig = !showConfig" title="点击展开详细配置">
             <div class="pill">
               <span class="pill-label">模型</span> {{ store.comparison.modelName }}
             </div>
@@ -30,7 +30,7 @@
 
           <div class="divider"></div>
 
-          <button v-if="!isComparing" class="btn-action primary" @click="handleCompare">
+          <button v-if="!isComparing" class="btn-action primary" data-tour-id="comparison-run" @click="handleCompare">
             运行对比
           </button>
           <button v-else class="btn-action danger pulsate" @click="handleStop">
@@ -113,7 +113,7 @@
         </div>
       </transition>
       
-      <div class="split-pane">
+      <div class="split-pane" data-tour-id="comparison-editors">
         <div class="pane">
           <div class="pane-head">
             <div class="pane-title"><span class="dot a-dot"></span> Code A</div>
@@ -133,7 +133,7 @@
         </div>
       </div>
       
-      <div class="bottom-panel glass-panel">
+      <div class="bottom-panel glass-panel" data-tour-id="comparison-results">
         <div class="tabs-header">
           <button 
             class="tab-btn" 

@@ -52,6 +52,18 @@ export const useAuthStore = defineStore(
       }
     }
 
+    const updateProfile = async (payload) => {
+      const res = await api.updateMe(payload)
+      if (res.data.access_token) token.value = res.data.access_token
+      user.value = res.data.user
+      return res.data
+    }
+
+    const updatePassword = async (payload) => {
+      await api.updatePassword(payload)
+      return true
+    }
+
     // 登出动作
     const logout = () => {
       // 清除 Auth 信息
@@ -72,6 +84,8 @@ export const useAuthStore = defineStore(
       login,
       register,
       fetchUser,
+      updateProfile,
+      updatePassword,
       logout
     }
   },

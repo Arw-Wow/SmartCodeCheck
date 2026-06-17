@@ -1,7 +1,7 @@
 <template>
   <div class="workspace-view">
     <div class="workspace-container">
-      <aside class="panel-left glass-panel">
+      <aside class="panel-left glass-panel" data-tour-id="workspace-config">
         <div class="panel-header">
           <h3>检测配置</h3>
         </div>
@@ -92,7 +92,7 @@
         </div>
 
         <div class="panel-footer">
-          <button v-if="!workspace.isAnalyzing" class="btn-action primary" @click="handleAnalyze">
+          <button v-if="!workspace.isAnalyzing" class="btn-action primary" data-tour-id="workspace-analyze" @click="handleAnalyze">
             深度分析
           </button>
           <button v-else class="btn-action danger pulsate" @click="handleStop">
@@ -119,13 +119,14 @@
           ref="editor"
           v-model="workspace.code"
           class="workspace-code-editor"
+          data-tour-id="workspace-editor"
           :language="workspace.language"
           :issues="workspace.visibleIssues"
           :enabled-severities="workspace.enabledSeverities"
         />
       </main>
 
-      <aside class="panel-right glass-panel">
+      <aside class="panel-right glass-panel" data-tour-id="workspace-results">
         <div class="tabs-nav">
           <button :class="['tab-item', { active: activeTab === 'result' }]" @click="activeTab = 'result'">
             分析结果

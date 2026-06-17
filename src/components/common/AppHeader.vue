@@ -25,15 +25,22 @@
           <router-link to="/register" class="btn-primary-glow">注册</router-link>
         </template>
 
-        <div v-else class="user-pill">
-          <div class="avatar-circle">
-            {{ authStore.user?.username?.charAt(0).toUpperCase() || 'U' }}
-          </div>
-          <span class="username">{{ authStore.user?.username }}</span>
-          <div class="divider-vertical"></div>
-          <button @click="handleLogout" class="btn-logout" title="退出登录">
-            <span class="icon">➜</span>
+        <div v-else class="user-menu">
+          <button class="user-pill" data-tour-id="header-user-menu" @click="menuOpen = !menuOpen">
+            <div class="avatar-circle">
+              {{ authStore.user?.username?.charAt(0).toUpperCase() || 'U' }}
+            </div>
+            <span class="username">{{ authStore.user?.username }}</span>
+            <span class="menu-caret" :class="{ open: menuOpen }">▼</span>
           </button>
+          <div v-if="menuOpen" class="user-dropdown">
+            <router-link to="/settings/account" class="dropdown-item" @click="menuOpen = false">
+              用户设置
+            </router-link>
+            <button type="button" class="dropdown-item danger" @click="handleLogout">
+              退出登录
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -41,14 +48,17 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const menuOpen = ref(false)
 
 const handleLogout = () => {
   if (confirm('确定要退出登录吗？')) {
+    menuOpen.value = false
     authStore.logout()
     router.push('/login')
   }
@@ -247,6 +257,12 @@ const handleLogout = () => {
   transform: translateY(-1px);
 }
 
+.user-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 /* User Pill */
 .user-pill {
   display: flex;
@@ -257,6 +273,7 @@ const handleLogout = () => {
   padding: 4px 6px 4px 12px;
   border-radius: 30px;
   transition: all 0.3s;
+  color: var(--text-primary);
 }
 
 .user-pill:hover {
@@ -287,26 +304,51 @@ const handleLogout = () => {
   white-space: nowrap;
 }
 
-.divider-vertical {
-  width: 1px;
-  height: 14px;
-  background: rgba(255, 255, 255, 0.1);
+.menu-caret {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  transition: transform 0.2s;
 }
 
-.btn-logout {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+.menu-caret.open {
+  transform: rotate(180deg);
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 120;
+  display: grid;
+  min-width: 148px;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: rgba(13, 17, 23, 0.96);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.dropdown-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: var(--text-secondary);
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 6px;
   background: transparent;
-  transition: all 0.2s;
-  flex-shrink: 0;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  text-align: left;
 }
 
-.btn-logout:hover {
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dropdown-item.danger {
+  color: #ff8a8a;
+}
+
+.dropdown-item.danger:hover {
   background: rgba(218, 54, 51, 0.2);
   color: #ff6b6b;
 }

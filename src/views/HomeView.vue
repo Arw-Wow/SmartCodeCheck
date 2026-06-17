@@ -11,7 +11,7 @@
           用统一流程完成代码质量发现、复核、沉淀与追踪。
         </p>
         
-        <div class="cta-group">
+        <div class="cta-group" data-tour-id="home-primary-actions">
           <router-link to="/workspace" class="btn btn-primary btn-lg">
             打开工作台
           </router-link>
@@ -42,7 +42,7 @@
       <div class="glow-bg glow-2"></div>
     </section>
     
-    <section class="features-section container">
+    <section class="features-section container" data-tour-id="home-feature-overview">
       <section class="feature-group">
         <div class="group-head">
           <h2 class="section-title">主要入口</h2>

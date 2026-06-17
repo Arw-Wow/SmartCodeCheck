@@ -7,6 +7,7 @@
     <AppFooter />
     
     <ToastManager />
+    <TourOverlay />
   </div>
 </template>
 
@@ -14,6 +15,7 @@
 import AppHeader from '@/components/common/AppHeader.vue'
 import AppFooter from '@/components/common/AppFooter.vue'
 import ToastManager from '@/components/common/ToastManager.vue'
+import TourOverlay from '@/components/common/TourOverlay.vue'
 </script>
 
 <style scoped>

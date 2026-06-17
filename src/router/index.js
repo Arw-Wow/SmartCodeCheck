@@ -9,6 +9,7 @@ import RuleSetsView from '@/views/RuleSetsView.vue'
 import EvaluationsView from '@/views/EvaluationsView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import ModelSettingsView from '@/views/ModelSettingsView.vue'
+import AccountSettingsView from '@/views/AccountSettingsView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 
@@ -27,6 +28,7 @@ const routes = [
   { path: '/evaluations', name: 'Evaluations', component: EvaluationsView, meta: { requiresAuth: true } },
   { path: '/dashboard', name: 'Dashboard', component: DashboardView, meta: { requiresAuth: true } },
   { path: '/settings/models', name: 'ModelSettings', component: ModelSettingsView, meta: { requiresAuth: true } },
+  { path: '/settings/account', name: 'AccountSettings', component: AccountSettingsView, meta: { requiresAuth: true } },
   { 
     path: '/comparison', 
     name: 'Comparison', 

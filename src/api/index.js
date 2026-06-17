@@ -56,6 +56,15 @@ export default {
   getMe() {
     return apiClient.get('/auth/me')
   },
+  updateMe(data) {
+    return apiClient.patch('/auth/me', data)
+  },
+  updatePassword(data) {
+    return apiClient.patch('/auth/me/password', data)
+  },
+  updateTutorialProgress(data) {
+    return apiClient.put('/auth/me/tutorial-progress', data)
+  },
 
   // --- 维度管理接口 ---
   getDimensions() {

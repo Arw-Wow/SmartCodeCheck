@@ -13,7 +13,7 @@
 
     <p v-if="error" class="error">{{ error }}</p>
 
-    <section class="metrics">
+    <section class="metrics" data-tour-id="dashboard-overview">
       <article class="metric-card">
         <span>分析次数</span>
         <strong>{{ overview.totalRuns }}</strong>
@@ -47,7 +47,7 @@
     </section>
 
     <section class="dashboard-grid">
-      <article class="chart-panel wide">
+      <article class="chart-panel wide" data-tour-id="dashboard-trend">
         <header>
           <h3>质量趋势</h3>
           <small>得分与问题数量</small>
@@ -55,7 +55,7 @@
         <div ref="trendChartRef" class="chart chart-large"></div>
       </article>
 
-      <article class="chart-panel">
+      <article class="chart-panel" data-tour-id="dashboard-breakdowns">
         <header>
           <h3>严重级别</h3>
           <small>问题风险分布</small>

@@ -8,7 +8,7 @@
       <router-link to="/workspace" class="secondary-link">去工作台使用</router-link>
     </section>
 
-    <section class="usage-panel">
+    <section class="usage-panel" data-tour-id="rulesets-usage">
       <article>
         <strong>1. 上传文档</strong>
         <span>选择 Markdown、TXT、JSON、YAML 或 CSV 等文本规范文档，也可以直接粘贴正文。</span>
@@ -23,7 +23,7 @@
       </article>
     </section>
 
-    <section class="form-panel">
+    <section class="form-panel" data-tour-id="rulesets-form">
       <div v-if="editingId" class="edit-banner">
         <span>正在编辑：{{ draft.name }}</span>
         <button type="button" @click="resetDraft">取消编辑</button>
@@ -50,7 +50,7 @@
       <p v-if="error" class="error">{{ error }}</p>
     </section>
 
-    <section class="list">
+    <section class="list" data-tour-id="rulesets-list">
       <article v-for="item in ruleSets" :key="item.id" class="row" :class="{ active: item.id === editingId }">
         <div class="row-main">
           <strong>{{ item.name }}</strong>

@@ -4,7 +4,7 @@
       <h2>模型配置</h2>
       <button @click="create">保存模型</button>
     </section>
-    <section class="form-row">
+    <section class="form-row" data-tour-id="model-settings-form">
       <input v-model="draft.name" placeholder="模型名称" />
       <input v-model="draft.base_url" placeholder="Base URL" />
       <select v-model="draft.provider">
@@ -12,7 +12,7 @@
         <option>cloud</option>
       </select>
     </section>
-    <section class="list">
+    <section class="list" data-tour-id="model-settings-list">
       <article v-for="model in models" :key="model.id" class="row">
         <strong>{{ model.name }}</strong>
         <span>{{ model.provider }} · {{ model.is_enabled ? 'enabled' : 'disabled' }}</span>
