@@ -15,3 +15,17 @@ export function severityChartRows(data = {}) {
 export function trendRows(data = []) {
   return [...data].sort((a, b) => String(a.date).localeCompare(String(b.date)))
 }
+
+export function runRows(data = []) {
+  return [...data]
+    .map(run => ({
+      id: run.id,
+      language: run.language || 'Unknown',
+      modelName: run.model_name || 'Default',
+      score: Number(run.score || 0),
+      status: run.status || 'unknown',
+      privacyMode: Boolean(run.privacy_mode),
+      createdAt: run.created_at || ''
+    }))
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+}

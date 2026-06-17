@@ -97,10 +97,26 @@ defineExpose({ focusLine })
 .smart-code-editor {
   height: 100%;
   min-height: 360px;
+  flex: 1;
+  min-width: 0;
+  background: #0d0d0d;
 }
 
 :deep(.cm-editor) {
   height: 100%;
+  outline: none;
+  background: #0d0d0d !important;
+}
+
+:deep(.cm-scroller) {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  line-height: 1.6;
+}
+
+:deep(.cm-gutters) {
+  background-color: #0d0d0d;
+  border-right: 1px solid #2b2b2b;
+  color: #4a4a4a;
 }
 
 :deep(.cm-issue-line) {

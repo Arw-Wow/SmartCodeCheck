@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Text } from '@codemirror/state'
-import { filterIssues, sortIssues } from '@/services/issues'
+import { filterIssues, issueFilterOptions, sortIssues } from '@/services/issues'
 import { issueLineRanges } from '@/components/editor/issueDecorations'
 
 const issues = [
@@ -21,6 +21,18 @@ describe('issue utilities', () => {
 
   it('sorts by severity then line', () => {
     expect(sortIssues(issues).map(issue => issue.id)).toEqual(['2', '3', '1'])
+  })
+
+  it('builds filter options from real issue values only', () => {
+    const options = issueFilterOptions([
+      ...issues,
+      { id: 'placeholder', severity: 'Severity', dimension: 'Dimension', source: 'Source' }
+    ])
+    expect(options).toEqual({
+      severities: ['high', 'low', 'medium'],
+      dimensions: ['security', 'style'],
+      sources: ['llm', 'static', 'validation']
+    })
   })
 
   it('maps issue lines to CodeMirror ranges and skips missing lines', () => {

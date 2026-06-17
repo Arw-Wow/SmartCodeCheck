@@ -2,38 +2,38 @@
   <div class="home-view">
     <section class="hero-section">
       <div class="hero-content">
-        <div class="badge-pill">✨ 新增 DeepSeek-V3 & 本地模型支持</div>
+        <div class="badge-pill">SmartCodeCheck 2.0 · 混合式代码质量工作台</div>
         <h1 class="title">
-          智能代码<span class="gradient-text">审计与对比</span>平台
+          智能代码<span class="gradient-text">质量工作台</span>
         </h1>
         <p class="subtitle">
-          不仅仅是代码检查。基于多款大语言模型，支持<span class="highlight">自定义检测维度</span>，
-          一键生成深度分析报告，让代码质量评估更精准、更个性化。
+          结合静态分析、LLM 语义审计和证据链报告，支持<span class="highlight">规则集、批量评测、统计恢复</span>，
+          让代码质量评估从一次性报告升级为可追踪的工作流。
         </p>
         
         <div class="cta-group">
-          <router-link to="/detection" class="btn btn-primary btn-lg">
-            🚀 开始检测
+          <router-link to="/workspace" class="btn btn-primary btn-lg">
+            打开工作台
           </router-link>
-          <router-link to="/comparison" class="btn btn-secondary btn-lg">
-            ⚖️ 代码对比
+          <router-link to="/detection" class="btn btn-secondary btn-lg">
+            经典检测
           </router-link>
         </div>
 
         <div class="stats-row">
           <div class="stat-item">
-            <span class="stat-num">5+</span>
-            <span class="stat-desc">支持模型</span>
+            <span class="stat-num">Hybrid</span>
+            <span class="stat-desc">分析引擎</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-num">100%</span>
-            <span class="stat-desc">维度自定义</span>
+            <span class="stat-num">Rules</span>
+            <span class="stat-desc">规则集</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
-            <span class="stat-num">Local</span>
-            <span class="stat-desc">隐私安全</span>
+            <span class="stat-num">Runs</span>
+            <span class="stat-desc">历史恢复</span>
           </div>
         </div>
       </div>
@@ -79,6 +79,45 @@
           <div class="card-icon">🛡️</div>
           <h3>安全隔离</h3>
           <p>基于 JWT 的用户认证体系，确保您的检测记录与自定义配置仅对自己可见。</p>
+        </div>
+      </div>
+
+      <h2 class="section-title upgrade-title">2.0 新增能力</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="card-icon">🔎</div>
+          <h3>混合式分析</h3>
+          <p>先用静态分析提取确定性事实，再由 LLM 做语义审计，输出可校验的结构化问题列表。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon">🧾</div>
+          <h3>证据链 Issue</h3>
+          <p>每个问题包含严重度、置信度、来源、行号、证据、影响和建议，便于复核与定位。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon">🧭</div>
+          <h3>IDE 式工作台</h3>
+          <p>编辑器高亮、问题列表筛选和点击跳转联动，减少从报告到代码之间的切换成本。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon">📚</div>
+          <h3>规则集与 Rubric</h3>
+          <p>将团队、课程或项目规范沉淀为可复用规则集，并在分析时保留规则快照。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon">📈</div>
+          <h3>统计与恢复</h3>
+          <p>保存结构化分析记录，支持从统计中心恢复工作台现场，隐私模式下只恢复结果不恢复代码。</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-icon">🧪</div>
+          <h3>批量评测</h3>
+          <p>支持 JSONL 样本评测、任务记录和结果导出，为模型对比和研究实验提供基础能力。</p>
         </div>
       </div>
     </section>
@@ -237,6 +276,10 @@
   text-align: center;
   font-size: 2rem;
   margin-bottom: 50px;
+}
+
+.upgrade-title {
+  margin-top: 64px;
 }
 
 .features-grid {

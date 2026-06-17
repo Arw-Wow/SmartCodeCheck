@@ -113,19 +113,35 @@ const handleLogout = () => {
   border: 1px solid rgba(255, 255, 255, 0.05);
   /* 确保中间不被拉伸，保持自然宽度 */
   flex-shrink: 0; 
+  max-width: 100%;
   /* 左右 margin 设为 auto 也是一种居中策略，但在 flex:1 布局下不需要 */
 }
 
 .nav-link {
   color: var(--text-secondary);
   font-weight: 500;
-  padding: 6px 14px;
+  padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.9rem;
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
   white-space: nowrap; /* 防止文字换行 */
+}
+
+@media (max-width: 1100px) {
+  .header-inner {
+    height: auto;
+    gap: 10px;
+  }
+
+  .main-nav {
+    overflow-x: auto;
+  }
+
+  .nav-link {
+    padding: 6px 10px;
+  }
 }
 
 .nav-link:hover {

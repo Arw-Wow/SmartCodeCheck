@@ -67,15 +67,18 @@ export default {
     return v2Client.get('/evaluations')
   },
   getStatsOverview() {
-    return v2Client.get('/stats/overview')
+    return v2Client.get('/stats/overview', { params: { _: Date.now() } })
   },
   getStatsIssues() {
-    return v2Client.get('/stats/issues')
+    return v2Client.get('/stats/issues', { params: { _: Date.now() } })
   },
   getStatsTrends() {
-    return v2Client.get('/stats/trends')
+    return v2Client.get('/stats/trends', { params: { _: Date.now() } })
   },
   getRuns() {
-    return v2Client.get('/runs')
+    return v2Client.get('/runs', { params: { _: Date.now() } })
+  },
+  getRun(id) {
+    return v2Client.get(`/runs/${id}`)
   }
 }

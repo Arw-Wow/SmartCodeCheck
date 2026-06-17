@@ -28,7 +28,14 @@ export function sortIssues(issues) {
 }
 
 export function issueFilterOptions(issues) {
-  const values = (key) => [...new Set((issues || []).map(issue => issue[key]).filter(Boolean))].sort()
+  const placeholderValues = new Set(['severity', 'dimension', 'source'])
+  const values = (key) => [
+    ...new Set(
+      (issues || [])
+        .map(issue => issue[key])
+        .filter(value => value && !placeholderValues.has(String(value).toLowerCase()))
+    )
+  ].sort()
   return {
     severities: values('severity'),
     dimensions: values('dimension'),

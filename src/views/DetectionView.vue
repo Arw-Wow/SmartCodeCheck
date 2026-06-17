@@ -75,6 +75,20 @@
               <DimensionSelector v-model="store.detection.selectedDimensions" />
             </div>
           </div>
+
+          <details class="advanced-tools">
+            <summary>进阶工具</summary>
+            <div class="tool-links">
+              <router-link to="/evaluations" class="tool-link">
+                <span>批量评测</span>
+                <small>上传或粘贴 JSONL，批量跑样本</small>
+              </router-link>
+              <router-link to="/rulesets" class="tool-link">
+                <span>规则集管理</span>
+                <small>维护课程规范、团队约定和安全红线</small>
+              </router-link>
+            </div>
+          </details>
         </div>
 
         <div class="panel-footer">
@@ -401,6 +415,52 @@ const getScoreColorClass = (score) => {
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
+}
+
+.advanced-tools {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 10px 12px;
+}
+
+.advanced-tools summary {
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.tool-links {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tool-link {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tool-link:hover {
+  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.tool-link span {
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.tool-link small {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.45;
 }
 
 .panel-footer {
