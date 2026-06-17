@@ -9,6 +9,12 @@ export function normalizeOverview(data = {}) {
     completedRuns: Number(source.completed_runs || 0),
     completionRate: Number(source.completion_rate || 0),
     averageDurationMs: Number(source.average_duration_ms || 0),
+    averageIssuesPerRun: Number(source.average_issues_per_run || 0),
+    severeIssueCount: Number(source.severe_issue_count || 0),
+    languageCounts: isRecord(source.language_counts) ? source.language_counts : {},
+    statusCounts: isRecord(source.status_counts) ? source.status_counts : {},
+    modelCounts: isRecord(source.model_counts) ? source.model_counts : {},
+    privacyCounts: isRecord(source.privacy_counts) ? source.privacy_counts : {},
     lastRunAt: source.last_run_at || ''
   }
 }
@@ -43,13 +49,38 @@ export function dimensionRows(data = {}) {
 
 export function sourceRows(data = {}) {
   const counts = isRecord(data?.source_counts) ? data.source_counts : {}
-  return Object.entries(counts)
-    .map(([source, count]) => ({ source, count }))
-    .sort((a, b) => b.count - a.count || a.source.localeCompare(b.source))
+  return countRows(counts, 'source')
 }
 
 export function trendRows(data = []) {
-  return (Array.isArray(data) ? [...data] : []).sort((a, b) => String(a.date).localeCompare(String(b.date)))
+  return (Array.isArray(data) ? [...data] : [])
+    .map(row => ({
+      ...row,
+      score: Number(row.score || 0),
+      issue_count: Number(row.issue_count || 0),
+      duration_ms: Number(row.duration_ms || 0)
+    }))
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)) || Number(a.run_id || 0) - Number(b.run_id || 0))
+}
+
+export function languageRows(data = {}) {
+  const counts = isRecord(data?.languageCounts) ? data.languageCounts : data?.language_counts
+  return countRows(counts, 'language')
+}
+
+export function statusRows(data = {}) {
+  const counts = isRecord(data?.statusCounts) ? data.statusCounts : data?.status_counts
+  return countRows(counts, 'status')
+}
+
+export function modelRows(data = {}) {
+  const counts = isRecord(data?.modelCounts) ? data.modelCounts : data?.model_counts
+  return countRows(counts, 'model')
+}
+
+export function privacyRows(data = {}) {
+  const counts = isRecord(data?.privacyCounts) ? data.privacyCounts : data?.privacy_counts
+  return countRows(counts, 'mode')
 }
 
 export function runRows(data = []) {
@@ -72,6 +103,13 @@ export function gradeFor(score) {
   if (score >= 70) return 'C'
   if (score >= 60) return 'D'
   return 'E'
+}
+
+function countRows(counts = {}, key) {
+  if (!isRecord(counts)) return []
+  return Object.entries(counts)
+    .map(([name, count]) => ({ [key]: name, count: Number(count || 0) }))
+    .sort((a, b) => b.count - a.count || String(a[key]).localeCompare(String(b[key])))
 }
 
 function isRecord(value) {

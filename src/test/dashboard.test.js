@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { dimensionRows, normalizeOverview, runRows, severityChartRows, sourceRows, trendRows } from '@/services/dashboard'
+import {
+  dimensionRows,
+  languageRows,
+  modelRows,
+  normalizeOverview,
+  privacyRows,
+  runRows,
+  severityChartRows,
+  sourceRows,
+  statusRows,
+  trendRows
+} from '@/services/dashboard'
 
 describe('dashboard transforms', () => {
   it('normalizes overview defaults', () => {
@@ -35,6 +46,19 @@ describe('dashboard transforms', () => {
   it('sorts trends by date', () => {
     expect(trendRows([{ date: '2026-06-02' }, { date: '2026-06-01' }]).map(row => row.date)).toEqual(['2026-06-01', '2026-06-02'])
     expect(trendRows(null)).toEqual([])
+  })
+
+  it('turns overview counts into distribution rows', () => {
+    const overview = normalizeOverview({
+      language_counts: { Python: 2, Go: 1 },
+      status_counts: { completed: 2 },
+      model_counts: { Default: 1, local: 3 },
+      privacy_counts: { privacy: 1, stored: 2 }
+    })
+    expect(languageRows(overview)).toEqual([{ language: 'Python', count: 2 }, { language: 'Go', count: 1 }])
+    expect(statusRows(overview)).toEqual([{ status: 'completed', count: 2 }])
+    expect(modelRows(overview)).toEqual([{ model: 'local', count: 3 }, { model: 'Default', count: 1 }])
+    expect(privacyRows(overview)).toEqual([{ mode: 'stored', count: 2 }, { mode: 'privacy', count: 1 }])
   })
 
   it('normalizes run rows for history restore', () => {
