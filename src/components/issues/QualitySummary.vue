@@ -56,6 +56,7 @@ const DIMENSION_LABELS = {
   correctness: '正确性',
   security: '安全性',
   maintainability: '可维护性',
+  efficiency: '执行效率',
   robustness: '鲁棒性',
   performance: '性能',
   readability: '可读性',
@@ -233,7 +234,7 @@ h2 {
 }
 
 .dimension-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .metric-item,
@@ -244,6 +245,15 @@ h2 {
   padding: 8px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.dimension-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.dimension-item small {
+  grid-column: 1 / -1;
 }
 
 .metric-item span,
@@ -267,6 +277,7 @@ h2 {
 
 .dimension-item strong {
   font-size: 1.25rem;
+  text-align: right;
 }
 
 .grade-a strong,
@@ -291,7 +302,7 @@ h2 {
 
 @media (max-width: 1280px) {
   .dimension-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 }
 </style>
