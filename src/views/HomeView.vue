@@ -7,7 +7,7 @@
           智能代码<span class="gradient-text">质量工作台</span>
         </h1>
         <p class="subtitle">
-          面向日常开发、教学评测和团队审查，整合<span class="highlight">经典检测、工作台分析、代码对比和批量评测</span>，
+          面向日常开发、教学评测和团队审查，整合<span class="highlight">工作台分析、代码对比、批量评测和统计追踪</span>，
           用统一流程完成代码质量发现、复核、沉淀与追踪。
         </p>
         
@@ -43,83 +43,85 @@
     </section>
     
     <section class="features-section container">
-      <h2 class="section-title">核心能力</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="card-icon">🤖</div>
-          <h3>灵活分析引擎</h3>
-          <p>按场景选择快速静态扫描、LLM 语义审计或混合式分析，在速度、深度和成本之间灵活取舍。</p>
+      <section class="feature-group">
+        <div class="group-head">
+          <h2 class="section-title">主要入口</h2>
+          <p>从深度审查到方案对比，覆盖代码质量评估中最常用的两类操作。</p>
         </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="card-icon">🧭</div>
+            <h3>工作台分析</h3>
+            <p>在编辑器中编写或粘贴代码，选择语言、维度、分析模式和规则集，生成可定位到代码的质量报告。</p>
+          </div>
 
-        <div class="feature-card">
-          <div class="card-icon">🎯</div>
-          <h3>可配置检测标准</h3>
-          <p>支持质量维度、自定义规则集和附加指令，把课程评分标准、团队规范或项目红线纳入同一套检测流程。</p>
+          <div class="feature-card">
+            <div class="card-icon">⚔️</div>
+            <h3>代码对比</h3>
+            <p>对两段实现进行 A/B 分析，从正确性、效率、可维护性、鲁棒性等维度辅助重构和选型判断。</p>
+          </div>
         </div>
+      </section>
 
-        <div class="feature-card">
-          <div class="card-icon">⚔️</div>
-          <h3>智能 A/B 对比</h3>
-          <p>通过双栏视图和维度评分对比两段代码，快速判断正确性、效率、可维护性和鲁棒性差异。</p>
+      <section class="feature-group">
+        <div class="group-head">
+          <h2 class="section-title">规则与模型</h2>
+          <p>围绕不同评审场景配置模型、质量维度和项目规范。</p>
         </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="card-icon">🤖</div>
+            <h3>分析模式与模型</h3>
+            <p>支持快速、智能、深度等分析模式，可选择云端模型或本地 OpenAI 兼容接口，平衡速度、效果和隐私。</p>
+          </div>
 
-        <div class="feature-card">
-          <div class="card-icon">🕒</div>
-          <h3>历史与统计</h3>
-          <p>保留检测、对比和工作台分析记录，支持查看趋势、复盘问题分布，并在需要时恢复分析现场。</p>
+          <div class="feature-card">
+            <div class="card-icon">📚</div>
+            <h3>规则集与维度</h3>
+            <p>将课程 Rubric、团队代码规范或安全要求整理成规则集，并结合质量维度和附加指令约束分析结果。</p>
+          </div>
         </div>
+      </section>
 
-        <div class="feature-card">
-          <div class="card-icon">📊</div>
-          <h3>结构化报告</h3>
-          <p>将分数、问题、证据、建议和原始事实统一组织，支持导出 JSON、Markdown 或批量结果文件。</p>
+      <section class="feature-group">
+        <div class="group-head">
+          <h2 class="section-title">结果解释</h2>
+          <p>让检测结果能被复核、定位和交付，而不是停留在一段笼统文本。</p>
         </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="card-icon">🧾</div>
+            <h3>证据链问题</h3>
+            <p>每个问题记录严重度、置信度、来源、行号、证据、影响和建议，便于复核结论和安排修复。</p>
+          </div>
 
-        <div class="feature-card">
-          <div class="card-icon">🛡️</div>
-          <h3>账号与隔离</h3>
-          <p>通过账号体系隔离个人记录、模型配置和规则资产，也支持隐私模式减少代码内容留存。</p>
+          <div class="feature-card">
+            <div class="card-icon">📊</div>
+            <h3>质量摘要与导出</h3>
+            <p>汇总分数、问题分布、静态事实和修复建议，支持导出 Markdown 或结构化结果用于归档和分享。</p>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <h2 class="section-title upgrade-title">工作流能力</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="card-icon">🔎</div>
-          <h3>经典检测</h3>
-          <p>保留轻量检测入口，适合快速粘贴代码、选择模型和维度，得到即时评分与文本分析结果。</p>
+      <section class="feature-group">
+        <div class="group-head">
+          <h2 class="section-title">追踪与交付</h2>
+          <p>面向复盘、实验和团队评测，把单次分析沉淀为可追踪记录。</p>
         </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="card-icon">🕒</div>
+            <h3>历史与统计</h3>
+            <p>汇总运行次数、平均分、问题数量、严重度分布和维度趋势，观察个人或团队质量变化。</p>
+          </div>
 
-        <div class="feature-card">
-          <div class="card-icon">🧾</div>
-          <h3>证据链问题</h3>
-          <p>工作台报告围绕问题列表展开，记录严重度、置信度、来源、行号、证据、影响和修复建议。</p>
+          <div class="feature-card">
+            <div class="card-icon">🧪</div>
+            <h3>批量检测与导出</h3>
+            <p>上传 JSONL、多行 JSON 或 JSON 数组批量运行样本，生成任务记录，并导出 JSON、CSV 或 Markdown 结果。</p>
+          </div>
         </div>
-
-        <div class="feature-card">
-          <div class="card-icon">🧭</div>
-          <h3>联动工作台</h3>
-          <p>编辑器高亮、问题筛选、质量摘要和点击跳转联动，减少从报告定位到代码修改之间的切换成本。</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="card-icon">📚</div>
-          <h3>规则集沉淀</h3>
-          <p>把团队规范、课程 Rubric 或安全要求保存为可复用规则集，分析时保留快照便于结果追溯。</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="card-icon">📈</div>
-          <h3>统计中心</h3>
-          <p>汇总运行次数、平均分、问题类型和维度趋势，帮助观察个人或团队代码质量变化。</p>
-        </div>
-
-        <div class="feature-card">
-          <div class="card-icon">🧪</div>
-          <h3>批量评测</h3>
-          <p>上传样本集后逐条运行检测，生成任务记录、汇总指标和导出文件，适合模型对比和实验评估。</p>
-        </div>
-      </div>
+      </section>
     </section>
   </div>
 </template>
@@ -270,21 +272,36 @@
 /* --- Features Section --- */
 .features-section {
   padding: 40px 20px 80px;
+  display: grid;
+  gap: 54px;
+}
+
+.feature-group {
+  display: grid;
+  gap: 18px;
+}
+
+.group-head {
+  display: grid;
+  gap: 10px;
+  max-width: 760px;
 }
 
 .section-title {
-  text-align: center;
   font-size: 2rem;
-  margin-bottom: 50px;
+  margin: 0;
 }
 
-.upgrade-title {
-  margin-top: 64px;
+.group-head p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
 }
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
 }
 
@@ -348,5 +365,6 @@
   .stats-row { flex-direction: column; gap: 20px; padding: 20px; width: 80%; }
   .stat-divider { width: 100%; height: 1px; }
   .cta-group { flex-direction: column; }
+  .features-grid { grid-template-columns: 1fr; }
 }
 </style>
