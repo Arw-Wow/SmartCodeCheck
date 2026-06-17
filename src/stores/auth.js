@@ -41,12 +41,14 @@ export const useAuthStore = defineStore(
 
     // 获取用户信息
     const fetchUser = async () => {
-      if (!token.value) return
+      if (!token.value) return false
       try {
         const res = await api.getMe()
         user.value = res.data
+        return true
       } catch (error) {
         logout()
+        return false
       }
     }
 

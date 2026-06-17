@@ -47,9 +47,11 @@ router.beforeEach(async (to, from, next) => {
   // 如果用户已登录但没有用户信息
   if (authStore.token) {
     if (!authStore.user) {
-      try {
-        await authStore.fetchUser()
-      } catch (e) {}
+      const authenticated = await withTimeout(authStore.fetchUser(), 3000, true)
+      if (!authenticated && to.meta.requiresAuth) {
+        next('/login')
+        return
+      }
     }
     
     // 如果已登录，且自定义维度为空，拉取维度
@@ -64,5 +66,12 @@ router.beforeEach(async (to, from, next) => {
     next()
   }
 })
+
+function withTimeout(promise, timeoutMs, fallbackValue) {
+  return Promise.race([
+    promise,
+    new Promise(resolve => globalThis.setTimeout(() => resolve(fallbackValue), timeoutMs))
+  ])
+}
 
 export default router

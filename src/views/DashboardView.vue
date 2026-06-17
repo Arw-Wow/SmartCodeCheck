@@ -58,23 +58,28 @@ const lastUpdated = ref('')
 async function load() {
   loading.value = true
   error.value = ''
-  const [overviewRes, issuesRes, trendsRes] = await Promise.allSettled([
-    v2Api.getStatsOverview(),
-    v2Api.getStatsIssues(),
-    v2Api.getStatsTrends()
-  ])
-  if (overviewRes.status === 'fulfilled') overview.value = normalizeOverview(overviewRes.value.data)
-  if (issuesRes.status === 'fulfilled') {
-    issueRows.value = severityChartRows(issuesRes.value.data)
-    dimensionItems.value = dimensionRows(issuesRes.value.data)
-    sourceItems.value = sourceRows(issuesRes.value.data)
-  }
-  if (trendsRes.status === 'fulfilled') trends.value = trendRows(trendsRes.value.data)
+  try {
+    const [overviewRes, issuesRes, trendsRes] = await Promise.allSettled([
+      v2Api.getStatsOverview(),
+      v2Api.getStatsIssues(),
+      v2Api.getStatsTrends()
+    ])
+    if (overviewRes.status === 'fulfilled') overview.value = normalizeOverview(overviewRes.value.data)
+    if (issuesRes.status === 'fulfilled') {
+      issueRows.value = severityChartRows(issuesRes.value.data)
+      dimensionItems.value = dimensionRows(issuesRes.value.data)
+      sourceItems.value = sourceRows(issuesRes.value.data)
+    }
+    if (trendsRes.status === 'fulfilled') trends.value = trendRows(trendsRes.value.data)
 
-  const failed = [overviewRes, issuesRes, trendsRes].find(item => item.status === 'rejected')
-  if (failed) error.value = failed.reason?.response?.data?.detail?.message || failed.reason?.message || '统计数据刷新失败'
-  lastUpdated.value = new Date().toISOString()
-  loading.value = false
+    const failed = [overviewRes, issuesRes, trendsRes].find(item => item.status === 'rejected')
+    if (failed) error.value = failed.reason?.response?.data?.detail?.message || failed.reason?.message || '统计数据刷新失败'
+    lastUpdated.value = new Date().toISOString()
+  } catch (err) {
+    error.value = err?.message || '统计数据刷新失败'
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => {

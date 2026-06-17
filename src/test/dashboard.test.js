@@ -9,6 +9,7 @@ describe('dashboard transforms', () => {
       totalIssues: 4
     })
     expect(normalizeOverview()).toMatchObject({ totalRuns: 0, averageScore: 0, totalIssues: 0 })
+    expect(normalizeOverview(null)).toMatchObject({ totalRuns: 0, averageScore: 0, totalIssues: 0 })
   })
 
   it('turns severity counts into sorted rows', () => {
@@ -16,20 +17,24 @@ describe('dashboard transforms', () => {
       { severity: 'high', count: 3 },
       { severity: 'low', count: 1 }
     ])
+    expect(severityChartRows({ severity_counts: null })).toEqual([])
   })
 
   it('turns dimension and source stats into dashboard rows', () => {
     expect(dimensionRows({ dimension_counts: { security: 2 }, dimension_scores: { security: 78 } })).toEqual([
       { dimension: 'security', count: 2, score: 78, grade: 'C' }
     ])
+    expect(dimensionRows({ dimension_counts: null, dimension_scores: null })).toEqual([])
     expect(sourceRows({ source_counts: { llm: 1, static: 3 } })).toEqual([
       { source: 'static', count: 3 },
       { source: 'llm', count: 1 }
     ])
+    expect(sourceRows({ source_counts: null })).toEqual([])
   })
 
   it('sorts trends by date', () => {
     expect(trendRows([{ date: '2026-06-02' }, { date: '2026-06-01' }]).map(row => row.date)).toEqual(['2026-06-01', '2026-06-02'])
+    expect(trendRows(null)).toEqual([])
   })
 
   it('normalizes run rows for history restore', () => {
@@ -40,5 +45,6 @@ describe('dashboard transforms', () => {
     expect(rows.map(row => row.id)).toEqual([2, 1])
     expect(rows[0]).toMatchObject({ modelName: 'local', score: 0, privacyMode: false })
     expect(rows[1]).toMatchObject({ modelName: 'Default', score: 91.5, privacyMode: true })
+    expect(runRows(null)).toEqual([])
   })
 })
