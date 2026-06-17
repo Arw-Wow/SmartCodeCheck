@@ -386,6 +386,27 @@ function getScoreColorClass(score) {
   padding: 0 10px;
 }
 
+.custom-select-wrapper select {
+  color-scheme: dark;
+}
+
+.custom-select-wrapper select:focus {
+  border-color: rgba(59, 130, 246, 0.72);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+  outline: none;
+}
+
+.custom-select-wrapper select option {
+  background: #111827;
+  color: #e6edf3;
+  font-size: 0.9rem;
+}
+
+.custom-select-wrapper select option:checked {
+  background: #1f6feb;
+  color: #ffffff;
+}
+
 .local-config-box,
 .advanced-tools,
 .warning-list {
