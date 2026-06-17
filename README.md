@@ -74,9 +74,17 @@ src/
 
 ## 🚀 快速开始
 
+以下命令需要在前端目录执行：
+
+```bash
+cd SmartCodeCheck-Frontend
+```
+
 ### 1. 环境要求
 
 * Node.js ≥ 18（推荐 20）
+* npm ≥ 9
+* 后端服务运行在 `http://localhost:8000`
 
 ### 2. 安装依赖
 
@@ -84,25 +92,29 @@ src/
 npm install
 ```
 
-### 
-
-### 3. 配置后端地址（默认端口为 8000）
-
-修改 `src/api/index.js`：
-
-```js
-const apiClient = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
-})
-```
-
-### 4. 启动开发环境
+### 3. 启动开发环境
 
 ```bash
 npm run dev
 ```
 
 访问：`http://localhost:5173`
+
+### 4. 后端地址说明
+
+当前前端代码中的后端地址是硬编码配置：
+
+* `src/api/index.js`：`http://localhost:8000/api/v1`
+* `src/services/v2Api.js`：`http://localhost:8000/api/v2`
+
+因此本地联调时，后端应使用 `8000` 端口启动：
+
+```bash
+cd SmartCodeCheck-Backend
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+如果需要改用其他后端地址，需要同步修改以上两个文件中的 `baseURL`。
 
 ### 5. 构建生产版本
 
