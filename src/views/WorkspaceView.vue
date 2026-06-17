@@ -52,6 +52,7 @@
         />
       </div>
       <aside>
+        <QualitySummary :facts="workspace.result?.facts" />
         <IssueList
           :issues="workspace.visibleIssues"
           :all-issues="workspace.issues"
@@ -69,6 +70,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import SmartCodeEditor from '@/components/editor/SmartCodeEditor.vue'
 import IssueList from '@/components/issues/IssueList.vue'
+import QualitySummary from '@/components/issues/QualitySummary.vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 
 const editor = ref(null)
@@ -237,6 +239,9 @@ function restoreFromRoute(runId) {
 
 .workspace-grid aside {
   overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .score {
