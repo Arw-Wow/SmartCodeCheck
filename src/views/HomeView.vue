@@ -52,7 +52,7 @@
           <div class="feature-card">
             <div class="card-icon">🧭</div>
             <h3>工作台分析</h3>
-            <p>在编辑器中编写或粘贴代码，选择语言、维度、分析模式和规则集，生成可定位到代码的质量报告。</p>
+            <p>在编辑器中编写或粘贴代码，选择语言、维度、分析模式和规范文档规则集，生成可定位到代码的质量报告。</p>
           </div>
 
           <div class="feature-card">
@@ -77,8 +77,8 @@
 
           <div class="feature-card">
             <div class="card-icon">📚</div>
-            <h3>规则集与维度</h3>
-            <p>将课程 Rubric、团队代码规范或安全要求整理成规则集，并结合质量维度和附加指令约束分析结果。</p>
+            <h3>规范文档规则集</h3>
+            <p>上传课程 Rubric、团队代码规范或安全要求文档，把它作为检测标准；质量维度仍由工作台独立选择。</p>
           </div>
         </div>
       </section>

@@ -58,16 +58,16 @@
           </div>
 
           <div class="config-item">
-            <label class="config-label">规则集</label>
+            <label class="config-label">规范文档规则集</label>
             <div class="custom-select-wrapper">
               <select v-model="workspace.selectedRuleSetId">
-                <option value="">不使用规则集</option>
+                <option value="">不使用规范文档</option>
                 <option v-for="item in workspace.ruleSets" :key="item.id" :value="String(item.id)">
                   {{ item.name }}
                 </option>
               </select>
             </div>
-            <router-link to="/rulesets" class="inline-link">管理规则集</router-link>
+            <router-link to="/rulesets" class="inline-link">管理规范文档</router-link>
             <p v-if="workspace.ruleSetsError" class="error-tip">{{ workspace.ruleSetsError }}</p>
           </div>
 

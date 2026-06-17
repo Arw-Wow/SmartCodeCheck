@@ -84,8 +84,8 @@
                 <small>上传或粘贴 JSONL，批量跑样本</small>
               </router-link>
               <router-link to="/rulesets" class="tool-link">
-                <span>规则集管理</span>
-                <small>维护课程规范、团队约定和安全红线</small>
+                <span>规范文档管理</span>
+                <small>上传课程规范、团队约定和安全红线文档</small>
               </router-link>
             </div>
           </details>
