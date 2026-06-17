@@ -149,9 +149,9 @@ function startEdit(item) {
   const rule = primaryRule(item)
   editingId.value = item.id
   draft.name = item.name || ''
-  draft.content = rule?.content || ''
-  draft.documentTitle = rule?.title || '团队规范文档'
-  draft.fileName = rule?.title || ''
+  draft.content = item.standard_document || rule?.content || ''
+  draft.documentTitle = item.document_title || rule?.title || '团队规范文档'
+  draft.fileName = item.document_title || rule?.title || ''
   error.value = ''
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
@@ -178,13 +178,14 @@ function primaryRule(item) {
 
 function standardLabel(item) {
   const rule = primaryRule(item)
+  if (item.document_title) return item.document_title
   if (!rule) return '未包含规范文档'
   if (rule.dimension === 'standard') return rule.title || '团队规范文档'
   return `${item.rules?.length || 0} 条兼容规则`
 }
 
 function standardExcerpt(item) {
-  const content = primaryRule(item)?.content || item.description || ''
+  const content = item.standard_document || primaryRule(item)?.content || item.description || ''
   return content.length > 120 ? `${content.slice(0, 120)}...` : content
 }
 
