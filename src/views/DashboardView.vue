@@ -63,7 +63,7 @@
         <div ref="severityChartRef" class="chart"></div>
       </article>
 
-      <article class="chart-panel">
+      <article class="chart-panel" data-tour-id="dashboard-breakdowns">
         <header>
           <h3>来源构成</h3>
           <small>静态分析、AI 与验证</small>
@@ -71,7 +71,7 @@
         <div ref="sourceChartRef" class="chart"></div>
       </article>
 
-      <article class="chart-panel wide">
+      <article class="chart-panel wide" data-tour-id="dashboard-breakdowns">
         <header>
           <h3>维度评级</h3>
           <small>平均得分与问题数量</small>
@@ -89,7 +89,7 @@
         </div>
       </article>
 
-      <article class="chart-panel">
+      <article class="chart-panel" data-tour-id="dashboard-breakdowns">
         <header>
           <h3>语言分布</h3>
           <small>不同语言的分析占比</small>
@@ -97,7 +97,7 @@
         <div ref="languageChartRef" class="chart"></div>
       </article>
 
-      <article class="chart-panel">
+      <article class="chart-panel" data-tour-id="dashboard-breakdowns">
         <header>
           <h3>运行状态</h3>
           <small>完成、失败与其他状态</small>
@@ -105,7 +105,7 @@
         <div ref="statusChartRef" class="chart"></div>
       </article>
 
-      <article class="chart-panel">
+      <article class="chart-panel" data-tour-id="dashboard-breakdowns">
         <header>
           <h3>模型分布</h3>
           <small>云端、默认与本地模型</small>

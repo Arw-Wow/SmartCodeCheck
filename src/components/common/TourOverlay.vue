@@ -111,23 +111,43 @@ function locateTarget() {
   clearTimeout(measureTimer)
   const targetId = tutorial.currentStep?.target
   if (!targetId) return
-  const target = document.querySelector(`[data-tour-id="${targetId}"]`)
-  if (!target) {
+  const targets = getTargets(targetId)
+  if (!targets.length) {
     measureTimer = setTimeout(() => tutorial.skipMissingStep(), 80)
     return
   }
-  target.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
+  targets[0].scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' })
   measureTimer = setTimeout(() => {
-    targetRect.value = target.getBoundingClientRect()
+    targetRect.value = getCombinedRect(targets)
   }, 180)
 }
 
 function measureTarget() {
   const targetId = tutorial.currentStep?.target
   if (!targetId) return
-  const target = document.querySelector(`[data-tour-id="${targetId}"]`)
-  if (!target) return
-  targetRect.value = target.getBoundingClientRect()
+  const targets = getTargets(targetId)
+  if (!targets.length) return
+  targetRect.value = getCombinedRect(targets)
+}
+
+function getTargets(targetId) {
+  return Array.from(document.querySelectorAll(`[data-tour-id="${targetId}"]`))
+}
+
+function getCombinedRect(targets) {
+  const rects = targets.map(target => target.getBoundingClientRect())
+  const top = Math.min(...rects.map(rect => rect.top))
+  const left = Math.min(...rects.map(rect => rect.left))
+  const right = Math.max(...rects.map(rect => rect.right))
+  const bottom = Math.max(...rects.map(rect => rect.bottom))
+  return {
+    top,
+    left,
+    right,
+    bottom,
+    width: right - left,
+    height: bottom - top
+  }
 }
 </script>
 
