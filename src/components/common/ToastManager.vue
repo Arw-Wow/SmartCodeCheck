@@ -7,12 +7,7 @@
         class="toast-item"
         :class="toast.type"
       >
-        <div class="icon">
-          <span v-if="toast.type === 'success'">✅</span>
-          <span v-else-if="toast.type === 'error'">❌</span>
-          <span v-else-if="toast.type === 'warning'">⚠️</span>
-          <span v-else>ℹ️</span>
-        </div>
+        <span class="status-dot" aria-hidden="true"></span>
         <div class="content">{{ toast.message }}</div>
         <button class="close-btn" @click="toastStore.remove(toast.id)">×</button>
       </div>
@@ -60,6 +55,30 @@ const toastStore = useToastStore()
 .toast-item.error { border-left-color: var(--danger); }
 .toast-item.warning { border-left-color: #f59e0b; }
 
+.status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.13);
+}
+
+.toast-item.success .status-dot {
+  background: var(--success);
+  box-shadow: 0 0 0 4px rgba(35, 134, 54, 0.16);
+}
+
+.toast-item.error .status-dot {
+  background: var(--danger);
+  box-shadow: 0 0 0 4px rgba(218, 54, 51, 0.16);
+}
+
+.toast-item.warning .status-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.16);
+}
+
 .content { flex: 1; line-height: 1.4; }
 
 .close-btn {
@@ -84,5 +103,21 @@ const toastStore = useToastStore()
 .toast-fade-leave-to {
   opacity: 0;
   transform: translateY(-20px);
+}
+
+@media (max-width: 760px) {
+  .toast-container {
+    left: 14px;
+    right: 14px;
+    top: 12px;
+  }
+
+  .toast-item {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 10px 12px;
+    font-size: 0.86rem;
+  }
 }
 </style>

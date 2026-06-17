@@ -664,20 +664,21 @@ function getScoreColorClass(score) {
 
 .run-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 54px 72px;
+  grid-template-columns: minmax(0, 1fr) 58px 76px;
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 10px;
+  padding: 11px 10px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.035));
   color: var(--text-primary);
   text-align: left;
 }
 
 .run-row:hover {
   border-color: var(--primary-color);
+  background: rgba(47, 129, 247, 0.09);
 }
 
 .run-row span {
@@ -694,7 +695,7 @@ function getScoreColorClass(score) {
 }
 
 .run-row b {
-  color: var(--success-color);
+  color: #7ee787;
   text-align: right;
 }
 
@@ -707,14 +708,70 @@ function getScoreColorClass(score) {
   .workspace-view {
     height: auto;
     overflow: visible;
+    padding: 12px;
   }
 
   .workspace-container {
     grid-template-columns: 1fr;
   }
 
+  .glass-panel {
+    overflow: visible;
+  }
+
+  .scroll-content {
+    overflow: visible;
+  }
+
   .editor-shell {
     min-height: 560px;
+  }
+}
+
+@media (max-width: 760px) {
+  .workspace-view {
+    padding: 10px;
+  }
+
+  .workspace-container {
+    gap: 12px;
+  }
+
+  .panel-header,
+  .panel-footer,
+  .scroll-content {
+    padding: 12px;
+  }
+
+  .editor-shell {
+    min-height: 430px;
+  }
+
+  .tabs-nav {
+    padding: 6px;
+  }
+
+  .result-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .score-card-modern {
+    padding: 14px;
+  }
+
+  .score-number {
+    font-size: 2.25rem;
+  }
+
+  .run-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .run-row em {
+    grid-column: 1 / -1;
+    text-align: left;
   }
 }
 </style>

@@ -17,7 +17,7 @@
       <div v-if="showModal" class="modal-overlay" @click.self="closeContact">
         <div class="glass-modal">
           <div class="modal-header">
-            <h3>📬 联系开发者</h3>
+            <h3>联系开发者</h3>
             <button class="btn-close" @click="closeContact">×</button>
           </div>
           
@@ -30,12 +30,12 @@
               title="点击复制邮箱"
               :class="{ 'clicked': copied }"
             >
-              <div class="icon-circle">📧</div>
+              <div class="icon-circle">Mail</div>
               <span class="email-text">hekaifeng70@gmail.com</span>
               
               <div class="action-tag">
                 <span v-if="!copied">点击复制</span>
-                <span v-else class="success-text">✅ 已复制</span>
+                <span v-else class="success-text">已复制</span>
               </div>
             </div>
           </div>
@@ -185,7 +185,10 @@ const copyEmail = async () => {
   background: rgba(255,255,255,0.05);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem;
+  color: var(--primary-color);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
 }
 
 .email-text {

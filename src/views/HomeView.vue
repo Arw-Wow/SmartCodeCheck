@@ -50,13 +50,13 @@
         </div>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="card-icon">🧭</div>
+            <div class="card-icon">WK</div>
             <h3>工作台分析</h3>
             <p>在编辑器中编写或粘贴代码，选择语言、维度、分析模式和规范文档规则集，生成可定位到代码的质量报告。</p>
           </div>
 
           <div class="feature-card">
-            <div class="card-icon">⚔️</div>
+            <div class="card-icon">AB</div>
             <h3>代码对比</h3>
             <p>对两段实现进行 A/B 分析，从正确性、效率、可维护性、鲁棒性等维度辅助重构和选型判断。</p>
           </div>
@@ -70,13 +70,13 @@
         </div>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="card-icon">🤖</div>
+            <div class="card-icon">AI</div>
             <h3>分析模式与模型</h3>
             <p>支持快速、智能、深度等分析模式，可选择云端模型或本地 OpenAI 兼容接口，平衡速度、效果和隐私。</p>
           </div>
 
           <div class="feature-card">
-            <div class="card-icon">📚</div>
+            <div class="card-icon">RG</div>
             <h3>规范文档规则集</h3>
             <p>上传课程 Rubric、团队代码规范或安全要求文档，把它作为检测标准；质量维度仍由工作台独立选择。</p>
           </div>
@@ -90,13 +90,13 @@
         </div>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="card-icon">🧾</div>
+            <div class="card-icon">EV</div>
             <h3>证据链问题</h3>
             <p>每个问题记录严重度、置信度、来源、行号、证据、影响和建议，便于复核结论和安排修复。</p>
           </div>
 
           <div class="feature-card">
-            <div class="card-icon">📊</div>
+            <div class="card-icon">QS</div>
             <h3>质量摘要与导出</h3>
             <p>汇总分数、问题分布、静态事实和修复建议，支持导出 Markdown 或结构化结果用于归档和分享。</p>
           </div>
@@ -110,13 +110,13 @@
         </div>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="card-icon">🕒</div>
+            <div class="card-icon">ST</div>
             <h3>历史与统计</h3>
             <p>汇总运行次数、平均分、问题数量、严重度分布和维度趋势，观察个人或团队质量变化。</p>
           </div>
 
           <div class="feature-card">
-            <div class="card-icon">🧪</div>
+            <div class="card-icon">BT</div>
             <h3>批量检测与导出</h3>
             <p>上传 JSONL、多行 JSON 或 JSON 数组批量运行样本，生成任务记录，并导出 JSON、CSV 或 Markdown 结果。</p>
           </div>
@@ -330,7 +330,10 @@
 }
 
 .card-icon {
-  font-size: 2.5rem;
+  color: var(--primary-color);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   margin-bottom: 20px;
   background: rgba(255, 255, 255, 0.05);
   width: 60px; height: 60px;

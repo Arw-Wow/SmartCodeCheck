@@ -9,19 +9,19 @@
       
       <div class="top-bar glass-panel">
         <div class="header-left">
-          <h2>⚔️ 代码对比</h2>
+          <h2>代码对比</h2>
         </div>
 
         <div class="header-controls">
           <div class="status-pills" @click="showConfig = !showConfig" title="点击展开详细配置">
             <div class="pill">
-              <span class="icon">🤖</span> {{ store.comparison.modelName }}
+              <span class="pill-label">模型</span> {{ store.comparison.modelName }}
             </div>
             <div class="pill">
-              <span class="icon">📐</span> {{ store.comparison.selectedDimensions.length }} 维度
+              <span class="pill-label">维度</span> {{ store.comparison.selectedDimensions.length }} 项
             </div>
             <div class="pill">
-              <span class="icon">🌐</span> {{ store.comparison.language }}
+              <span class="pill-label">语言</span> {{ store.comparison.language }}
             </div>
             <div class="pill-toggle">
               <span class="icon" :class="{ rotated: showConfig }">▼</span>
@@ -31,10 +31,10 @@
           <div class="divider"></div>
 
           <button v-if="!isComparing" class="btn-action primary" @click="handleCompare">
-            <span class="icon">⚡</span> 运行对比
+            运行对比
           </button>
           <button v-else class="btn-action danger pulsate" @click="handleStop">
-            <span class="icon">🛑</span> 终止
+            终止
           </button>
         </div>
       </div>
@@ -140,14 +140,14 @@
             :class="{ active: activeTab === 'result' }"
             @click="activeTab = 'result'"
           >
-            📊 对比报告
+            对比报告
           </button>
           <button 
             class="tab-btn" 
             :class="{ active: activeTab === 'history' }"
             @click="loadHistory"
           >
-            🕒 历史记录
+            历史记录
           </button>
         </div>
 
@@ -156,7 +156,6 @@
             <div v-if="activeTab === 'result'" key="result" class="result-container">
               
               <div v-if="!store.comparison.results && !isComparing" class="empty-state">
-                <div class="empty-icon">⚖️</div>
                 <p>配置完成? 输入代码并点击右上角“运行对比”</p>
               </div>
 
@@ -168,7 +167,7 @@
 
               <div v-if="store.comparison.results" class="diff-result">
                 <div class="result-header">
-                  <h3>🏆 分析总结</h3>
+                  <h3>分析总结</h3>
                   <div class="export-group">
                     <button @click="exportJSON" class="btn-xs">JSON</button>
                     <button @click="exportMD" class="btn-xs">Markdown</button>
@@ -297,8 +296,10 @@ const handleCompare = async () => {
     store.saveToHistory('comparison').catch(err => console.error('History save failed:', err))
 
   } catch (error) {
-    if (error.name !== 'CanceledError') {
-      toast.error('对比失败: ' + error.message)
+    if (error.name === 'CanceledError') {
+      toast.warning('已终止本次对比')
+    } else {
+      toast.error('对比失败: ' + (error.response?.data?.detail || error.message))
     }
   } finally {
     isComparing.value = false
@@ -308,6 +309,7 @@ const handleCompare = async () => {
 
 const handleStop = () => {
   if (abortController) abortController.abort()
+  isComparing.value = false
 }
 
 const loadHistory = async () => {
@@ -350,6 +352,7 @@ const exportMD = () => {
   min-height: calc(100vh - 64px);
   padding: 16px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .ambient-bg {
@@ -363,6 +366,7 @@ const exportMD = () => {
   position: relative;
   z-index: 1;
   max-width: 1400px;
+  min-width: 0;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -385,20 +389,33 @@ const exportMD = () => {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
+  gap: 16px;
 }
 .header-left h2 { margin: 0; font-size: 1.1rem; color: var(--text-primary); }
 
-.header-controls { display: flex; align-items: center; gap: 16px; }
+.header-controls { display: flex; align-items: center; gap: 16px; min-width: 0; }
 .divider { width: 1px; height: 24px; background: rgba(255,255,255,0.1); }
 
 /* 状态概览胶囊 */
 .status-pills {
   display: flex; gap: 8px; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.2s;
+  min-width: 0;
 }
 .status-pills:hover { background: rgba(255,255,255,0.05); }
 .pill {
   background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: var(--text-secondary);
   padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;
+  max-width: 190px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pill-label {
+  flex: 0 0 auto;
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 .pill-toggle { display: flex; align-items: center; color: var(--text-secondary); font-size: 0.7rem; padding: 0 4px; }
 .pill-toggle .icon { transition: transform 0.3s; }
@@ -434,6 +451,16 @@ const exportMD = () => {
 .select-wrapper select {
   width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: white;
   padding: 6px 10px; border-radius: 6px; font-size: 0.85rem;
+}
+
+.select-wrapper select option {
+  background: #111827;
+  color: #e6edf3;
+}
+
+.select-wrapper select option:checked {
+  background: #1f6feb;
+  color: #ffffff;
 }
 
 .model-list { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -474,7 +501,7 @@ const exportMD = () => {
 
 /* --- Editors --- */
 .split-pane { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; height: 500px; }
-.pane { display: flex; flex-direction: column; height: 100%; }
+.pane { display: flex; flex-direction: column; height: 100%; min-width: 0; }
 .pane-head { margin-bottom: 8px; font-weight: bold; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
 .pane-title { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
 .dot { width: 8px; height: 8px; border-radius: 50%; }
@@ -484,6 +511,7 @@ const exportMD = () => {
 .editor-frame {
   flex: 1; border-radius: 8px; overflow: hidden;
   border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  min-width: 0;
 }
 
 /* --- Bottom Panel --- */
@@ -609,4 +637,144 @@ const exportMD = () => {
   color: white; padding: 4px 6px; border-radius: 4px; font-size: 0.75rem;
 }
 .mini-row input:focus { border-color: var(--primary-color); outline: none; }
+
+@media (max-width: 1180px) {
+  .config-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+
+  .config-col:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .instruction-input {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 760px) {
+  .comparison-view {
+    padding: 12px;
+    overflow: visible;
+  }
+
+  .top-bar,
+  .header-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .top-bar {
+    padding: 14px;
+  }
+
+  .header-controls {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .divider {
+    display: none;
+  }
+
+  .status-pills {
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    flex: 1 1 140px;
+    max-width: none;
+    justify-content: center;
+  }
+
+  .pill-toggle {
+    margin-left: auto;
+  }
+
+  .btn-action {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 14px;
+  }
+
+  .dimension-area {
+    max-height: none;
+  }
+
+  .split-pane {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .pane {
+    min-height: 360px;
+  }
+
+  .bottom-panel {
+    min-height: 300px;
+  }
+
+  .tabs-header {
+    padding: 0 8px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 12px 8px;
+  }
+
+  .tab-scroll-area {
+    padding: 14px;
+  }
+
+  .result-header,
+  .metrics-dashboard,
+  .pk-card {
+    display: grid;
+    grid-template-columns: 1fr !important;
+  }
+
+  .result-header {
+    gap: 10px;
+  }
+
+  .export-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-xs {
+    margin-left: 0;
+  }
+
+  .pk-card {
+    grid-column: auto;
+    gap: 12px;
+  }
+
+  .radar-card,
+  .bars-card {
+    min-height: 260px;
+    padding: 14px;
+  }
+
+  .dim-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dim-label {
+    width: 100%;
+  }
+
+  .chart-area {
+    width: 100%;
+  }
+}
 </style>

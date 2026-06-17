@@ -74,7 +74,6 @@ const handleLogout = () => {
 
 .header-inner {
   display: flex;
-  /*Dn justify-content: space-between;  <-- 移除这个，改用 flex: 1 控制 */
   align-items: center;
   height: 40px;
 }
@@ -91,6 +90,7 @@ const handleLogout = () => {
 
 .logo-img {
   height: 26px;
+  max-width: min(298px, 100%);
   width: auto;
   transition: transform 0.3s ease;
 }
@@ -138,6 +138,58 @@ const handleLogout = () => {
 
   .nav-link {
     padding: 6px 10px;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    padding: 10px 0;
+  }
+
+  .header-inner {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .logo-wrapper {
+    flex: 1 1 150px;
+    margin-left: 0;
+  }
+
+  .logo-img {
+    height: 22px;
+    max-width: 180px;
+  }
+
+  .actions {
+    flex: 0 0 auto;
+    gap: 10px;
+  }
+
+  .main-nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .main-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    flex: 0 0 auto;
+    font-size: 0.84rem;
+  }
+
+  .user-pill {
+    gap: 8px;
+    padding-left: 8px;
+  }
+
+  .username {
+    max-width: 58px;
   }
 }
 

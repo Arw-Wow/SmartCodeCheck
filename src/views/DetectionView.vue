@@ -9,7 +9,7 @@
       
       <aside class="panel-left glass-panel">
         <div class="panel-header">
-          <h3>🛠️ 检测配置</h3>
+          <h3>检测配置</h3>
         </div>
         
         <div class="scroll-content">
@@ -97,14 +97,14 @@
             @click="handleAnalyze" 
             class="btn-action primary"
           >
-            <span class="icon">⚡</span>深度分析
+            深度分析
           </button>
           <button 
             v-else
             @click="handleStop" 
             class="btn-action danger pulsate"
           >
-            <span class="icon">🛑</span> 终止生成
+            终止生成
           </button>
           <p v-if="errorMessage" class="error-tip">{{ errorMessage }}</p>
         </div>
@@ -114,7 +114,6 @@
          <div class="instruction-wrapper">
           <details class="instruction-accordion">
             <summary>
-              <span class="summary-icon">📝</span> 
               <span>附加生成指令 / Context</span>
               <span class="sub-text">(可选)</span>
             </summary>
@@ -141,13 +140,13 @@
             :class="['tab-item', { active: activeTab === 'result' }]"
             @click="activeTab = 'result'"
           >
-            📊 分析报告
+            分析报告
           </button>
           <button 
             :class="['tab-item', { active: activeTab === 'history' }]"
             @click="loadHistory"
           >
-            🕒 历史记录
+            历史记录
           </button>
         </div>
 
@@ -164,7 +163,6 @@
               </div>
 
               <div v-if="!store.detection.results && !isAnalyzing" class="empty-placeholder">
-                <div class="empty-icon">👋</div>
                 <p>配置参数并点击左侧<br>“深度分析”按钮</p>
               </div>
 

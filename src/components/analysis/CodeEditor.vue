@@ -13,14 +13,14 @@
           :class="{ active: mode === 'paste' }"
           @click="mode = 'paste'"
         >
-          <span class="tab-icon">📝</span> 编辑器
+          编辑器
         </button>
         <button 
           class="editor-tab" 
           :class="{ active: mode === 'upload' }"
           @click="mode = 'upload'"
         >
-          <span class="tab-icon">📂</span> 文件上传
+          文件上传
         </button>
       </div>
       
@@ -45,7 +45,6 @@
 
       <div v-show="mode === 'upload'" class="upload-area" @dragover.prevent @drop.prevent="handleDrop">
         <div class="upload-box-modern">
-          <div class="upload-icon-anim">☁️</div>
           <h4 class="upload-title">拖拽文件到这里</h4>
           <p class="upload-subtitle">支持 .py, .java, .cpp, .js 等源码文件</p>
           
@@ -188,8 +187,6 @@ const handleDrop = (event) => {
   background: #0d0d0d; /* 与编辑器背景融为一体 */
   border-top-color: var(--primary-color);
 }
-.tab-icon { opacity: 0.7; font-size: 0.9rem; }
-
 /* 语言指示器 */
 .lang-indicator {
   margin-left: auto;
@@ -241,7 +238,6 @@ const handleDrop = (event) => {
   background: rgba(59, 130, 246, 0.05);
   transform: scale(1.02);
 }
-.upload-icon-anim { font-size: 3.5rem; margin-bottom: 16px; opacity: 0.8; animation: float 3s infinite ease-in-out; }
 .upload-title { margin: 0 0 8px 0; font-weight: 600; color: var(--text-primary); }
 .upload-subtitle { margin: 0 0 20px 0; font-size: 0.8rem; color: var(--text-secondary); }
 

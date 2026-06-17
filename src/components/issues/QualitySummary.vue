@@ -305,4 +305,16 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 760px) {
+  .summary-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .metric-grid,
+  .dimension-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>

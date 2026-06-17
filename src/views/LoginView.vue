@@ -239,7 +239,7 @@ input::placeholder { color: rgba(255,255,255,0.2); }
   display: flex;
   align-items: center;
 }
-.error-msg::before { content: '⚠ '; margin-right: 4px; }
+.error-msg::before { content: '!'; margin-right: 6px; font-weight: 800; }
 
 .btn-glow {
   position: relative;

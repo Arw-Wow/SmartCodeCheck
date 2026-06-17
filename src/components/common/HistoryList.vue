@@ -29,7 +29,7 @@
             </div>
             
             <button class="btn-delete" @click.stop="$emit('delete', item.id)" title="删除记录">
-              <span class="trash-icon">🗑️</span>
+              <span class="trash-icon">×</span>
             </button>
           </div>
           
@@ -126,15 +126,15 @@ const getCodePreview = (item) => {
 
 /* 列表容器 */
 .list-container {
-  display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px;
+  display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px;
 }
 
 /* 卡片主体 */
 .history-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.03));
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 12px 16px;
+  border-radius: 8px;
+  padding: 12px 14px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
@@ -151,7 +151,7 @@ const getCodePreview = (item) => {
 .history-card.comparison::before { background: var(--accent-color); }
 
 .history-card:hover {
-  transform: translateX(4px);
+  transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 20px rgba(0,0,0,0.2);
@@ -164,7 +164,7 @@ const getCodePreview = (item) => {
 .meta-left { display: flex; align-items: center; gap: 8px; }
 
 .type-pill {
-  font-size: 0.65rem; font-weight: 800; padding: 2px 6px; border-radius: 4px;
+  font-size: 0.64rem; font-weight: 800; padding: 3px 6px; border-radius: 4px;
   letter-spacing: 0.5px;
 }
 .type-pill.detection { background: rgba(59, 130, 246, 0.15); color: var(--primary-color); }
@@ -177,8 +177,13 @@ const getCodePreview = (item) => {
 }
 .history-card:hover .btn-delete { opacity: 1; }
 .btn-delete:hover { background: rgba(218, 54, 51, 0.2); }
-.trash-icon { font-size: 0.9rem; filter: grayscale(1); }
-.btn-delete:hover .trash-icon { filter: grayscale(0); }
+.trash-icon {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.btn-delete:hover .trash-icon { color: #ff7b72; }
 
 /* Card Body */
 .card-body { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -220,6 +225,40 @@ const getCodePreview = (item) => {
   overflow: hidden;
   text-overflow: ellipsis;
   opacity: 0.8;
+}
+
+@media (max-width: 760px) {
+  .state-box {
+    min-height: 180px;
+    padding: 24px 14px;
+  }
+
+  .history-card {
+    padding: 11px 12px;
+  }
+
+  .history-card:hover {
+    transform: none;
+  }
+
+  .card-header,
+  .card-body {
+    gap: 8px;
+  }
+
+  .meta-left {
+    min-width: 0;
+  }
+
+  .time-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-delete {
+    opacity: 1;
+  }
 }
 
 /* Animations */

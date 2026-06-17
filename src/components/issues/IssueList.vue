@@ -297,4 +297,25 @@ function sourceLabel(value) {
   margin: 0;
   padding: 14px;
 }
+
+@media (max-width: 760px) {
+  .issue-filters {
+    grid-template-columns: 1fr;
+    position: static;
+    padding-bottom: 0;
+    background: transparent;
+  }
+
+  .filter-menu {
+    height: auto;
+    min-height: 42px;
+  }
+
+  .filter-options {
+    position: static;
+    margin-top: 6px;
+    min-width: 0;
+    box-shadow: none;
+  }
+}
 </style>

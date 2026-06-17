@@ -39,7 +39,7 @@
           <div class="form-group">
             <label>邮箱 (可选)</label>
             <div class="input-group" :class="{ 'focused': focusedField === 'email' }">
-              <span class="input-icon">📧</span>
+              <span class="input-icon">@</span>
               <input 
                 v-model="form.email" 
                 type="email" 
@@ -280,7 +280,7 @@ input::placeholder { color: rgba(255,255,255,0.2); }
   display: flex;
   align-items: center;
 }
-.error-msg::before { content: '⚠ '; margin-right: 4px; }
+.error-msg::before { content: '!'; margin-right: 6px; font-weight: 800; }
 
 .btn-glow {
   position: relative;
