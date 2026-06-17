@@ -18,7 +18,7 @@ export function issueLineRanges(doc, issues, enabledSeverities = null) {
     const to = doc.line(Math.min(endLine, doc.lines)).to
     ranges.push({ from, to, issue })
   }
-  return ranges
+  return ranges.sort(compareRanges)
 }
 
 export function buildIssueDecorations(doc, issues, enabledSeverities = null) {
@@ -90,11 +90,17 @@ export function issueGutter(issues = []) {
       const payload = view.state.field(issuePayloadField, false) || EMPTY_ISSUE_STATE
       const activeIssues = payload.issues?.length ? payload.issues : issues
       const builder = new RangeSetBuilder()
-      for (const issue of activeIssues) {
-        if (!issue.line_start || issue.line_start > view.state.doc.lines) continue
+      const lineMarkers = []
+      for (const issue of activeIssues || []) {
+        if (!issue.line_start) continue
+        const lineNumber = Math.max(1, Number(issue.line_start))
+        if (!Number.isFinite(lineNumber) || lineNumber > view.state.doc.lines) continue
         if (payload.enabledSeverities && !payload.enabledSeverities.has(issue.severity)) continue
-        const line = view.state.doc.line(issue.line_start)
-        builder.add(line.from, line.from, new IssueMarker(issue))
+        const line = view.state.doc.line(lineNumber)
+        lineMarkers.push({ from: line.from, issue })
+      }
+      for (const marker of lineMarkers.sort(compareMarkers)) {
+        builder.add(marker.from, marker.from, new IssueMarker(marker.issue))
       }
       return builder.finish()
     }
@@ -103,4 +109,12 @@ export function issueGutter(issues = []) {
 
 export function issueDecorationsExtension() {
   return [issuePayloadField, issueDecorationField]
+}
+
+function compareRanges(a, b) {
+  return a.from - b.from || a.to - b.to || String(a.issue?.id || '').localeCompare(String(b.issue?.id || ''))
+}
+
+function compareMarkers(a, b) {
+  return a.from - b.from || String(a.issue?.id || '').localeCompare(String(b.issue?.id || ''))
 }

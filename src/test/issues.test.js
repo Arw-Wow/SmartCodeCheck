@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Text } from '@codemirror/state'
 import { filterIssues, issueFilterOptions, sortIssues } from '@/services/issues'
-import { issueLineRanges } from '@/components/editor/issueDecorations'
+import { buildIssueDecorations, issueLineRanges } from '@/components/editor/issueDecorations'
 
 const issues = [
   { id: '1', severity: 'low', dimension: 'style', source: 'llm', line_start: 3, line_end: 4 },
@@ -47,7 +47,20 @@ describe('issue utilities', () => {
     const doc = Text.of(['a', 'b', 'c', 'd'])
     const ranges = issueLineRanges(doc, issues)
     expect(ranges).toHaveLength(2)
-    expect(ranges[0].from).toBe(4)
-    expect(ranges[0].to).toBe(7)
+    expect(ranges[0].from).toBe(0)
+    expect(ranges[0].to).toBe(1)
+    expect(ranges[1].from).toBe(4)
+    expect(ranges[1].to).toBe(7)
+  })
+
+  it('builds CodeMirror decorations from unsorted display issues', () => {
+    const doc = Text.of(['a', 'b', 'c', 'd'])
+    const unsortedByLine = [
+      { id: 'later-high', severity: 'high', line_start: 4, line_end: 4 },
+      { id: 'earlier-low', severity: 'low', line_start: 1, line_end: 1 }
+    ]
+
+    expect(() => buildIssueDecorations(doc, unsortedByLine)).not.toThrow()
+    expect(issueLineRanges(doc, unsortedByLine).map(range => range.issue.id)).toEqual(['earlier-low', 'later-high'])
   })
 })
