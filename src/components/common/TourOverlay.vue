@@ -53,8 +53,8 @@ const panelStyle = computed(() => {
   if (!rect) return {}
   const margin = 16
   const gap = 14
-  const panelWidth = Math.min(panelRef.value?.offsetWidth || 360, window.innerWidth - margin * 2)
-  const panelHeight = panelRef.value?.offsetHeight || 210
+  const panelWidth = Math.min(392, Math.max(0, window.innerWidth - margin * 2))
+  const panelHeight = Math.min(panelRef.value?.offsetHeight || 220, window.innerHeight - margin * 2)
   let left = rect.left
   let top = rect.bottom + gap
 
@@ -65,6 +65,7 @@ const panelStyle = computed(() => {
     left = window.innerWidth - panelWidth - margin
   }
   left = Math.max(margin, left)
+  top = Math.min(Math.max(margin, top), Math.max(margin, window.innerHeight - panelHeight - margin))
 
   return {
     top: `${top}px`,
@@ -153,6 +154,9 @@ function measureTarget() {
   display: grid;
   gap: 10px;
   padding: 16px;
+  box-sizing: border-box;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
   border: 1px solid rgba(96, 165, 250, 0.35);
   border-radius: 8px;
   background: #111827;
@@ -191,6 +195,7 @@ function measureTarget() {
 }
 
 .tour-actions {
+  flex-wrap: wrap;
   justify-content: flex-end;
   margin-top: 4px;
 }
@@ -203,6 +208,7 @@ function measureTarget() {
   background: rgba(255, 255, 255, 0.06);
   color: #e5e7eb;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .tour-actions button:disabled {
