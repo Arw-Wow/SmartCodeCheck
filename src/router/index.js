@@ -4,6 +4,7 @@ import { useGlobalDataStore } from '@/stores/index'
 import HomeView from '@/views/HomeView.vue'
 import ComparisonView from '@/views/ComparisonView.vue'
 import WorkspaceView from '@/views/WorkspaceView.vue'
+import DetectionView from '@/views/DetectionView.vue'
 import RuleSetsView from '@/views/RuleSetsView.vue'
 import EvaluationsView from '@/views/EvaluationsView.vue'
 import DashboardView from '@/views/DashboardView.vue'
@@ -15,7 +16,7 @@ const routes = [
   { path: '/', name: 'Home', component: HomeView },
   { path: '/login', name: 'Login', component: LoginView },
   { path: '/register', name: 'Register', component: RegisterView },
-  { path: '/detection', redirect: '/workspace' },
+  { path: '/detection', name: 'Detection', component: DetectionView, meta: { requiresAuth: true } },
   {
     path: '/workspace',
     name: 'Workspace',

@@ -3,7 +3,7 @@
     <section class="page-head">
       <div>
         <h2>批量检测</h2>
-        <p>每行一个 JSON 对象，至少包含 `id`、`language`、`code` 字段。</p>
+        <p>支持 JSONL、多行 JSON 对象或 JSON 数组；每条样本至少包含 `id`、`language`、`code` 字段。</p>
       </div>
       <button class="primary-action" :disabled="submitting" @click="submit">
         {{ submitting ? '检测中...' : '运行 JSONL' }}
@@ -69,7 +69,12 @@
         <span v-if="fileName">{{ fileName }}</span>
         <button type="button" @click="clearJsonl">清空</button>
       </div>
-      <textarea v-model="jsonl" placeholder='{"id":"sample-1","language":"Python","prompt":"","code":"print(1)"}'></textarea>
+      <textarea v-model="jsonl" placeholder='{"id":"sample-1","language":"Python","prompt":"","code":"print(1)"}
+{
+  "id": "sample-2",
+  "language": "Python",
+  "code": "print(2)"
+}'></textarea>
       <div class="hint-row">
         <span>{{ sampleCount }} 条样本</span>
         <span v-if="message" class="message">{{ message }}</span>
@@ -218,7 +223,7 @@ const modelName = ref('deepseek-v3.1')
 const localConfig = ref(DEFAULT_LOCAL_CONFIG())
 const filters = ref({ severities: [], dimensions: [], sources: [] })
 
-const sampleCount = computed(() => jsonl.value.split(/\r?\n/).filter(line => line.trim()).length)
+const sampleCount = computed(() => countJsonSamples(jsonl.value))
 const summary = computed(() => detail.value?.summary_payload || {})
 const summaryDisplay = computed(() => evaluationSummary(summary.value))
 const selectedSample = computed(() => detail.value?.samples?.find(sample => sample.id === selectedSampleId.value) || null)
@@ -321,6 +326,57 @@ function clearJsonl() {
   message.value = ''
   error.value = ''
   if (fileInput.value) fileInput.value.value = ''
+}
+
+function countJsonSamples(value) {
+  const text = value.trim()
+  if (!text) return 0
+  try {
+    const parsed = JSON.parse(text)
+    return Array.isArray(parsed) ? parsed.length : 1
+  } catch {
+    return countTopLevelObjects(text)
+  }
+}
+
+function countTopLevelObjects(text) {
+  let count = 0
+  let depth = 0
+  let inString = false
+  let escaped = false
+  let objectStarted = false
+
+  for (const char of text) {
+    if (inString) {
+      if (escaped) {
+        escaped = false
+      } else if (char === '\\') {
+        escaped = true
+      } else if (char === '"') {
+        inString = false
+      }
+      continue
+    }
+
+    if (char === '"') {
+      inString = true
+      continue
+    }
+    if (char === '{') {
+      if (depth === 0) objectStarted = true
+      depth += 1
+      continue
+    }
+    if (char === '}' && depth > 0) {
+      depth -= 1
+      if (depth === 0 && objectStarted) {
+        count += 1
+        objectStarted = false
+      }
+    }
+  }
+
+  return count
 }
 
 function statusText(status) {

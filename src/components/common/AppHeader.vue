@@ -8,11 +8,11 @@
         <router-link to="/" active-class="active" class="nav-link">
           <span class="link-content">首页</span>
         </router-link>
-        <router-link to="/comparison" active-class="active" class="nav-link">
-          <span class="link-content">代码对比</span>
-        </router-link>
         <router-link to="/workspace" active-class="active" class="nav-link">
           <span class="link-content">工作台</span>
+        </router-link>
+        <router-link to="/comparison" active-class="active" class="nav-link">
+          <span class="link-content">代码对比</span>
         </router-link>
         <router-link to="/dashboard" active-class="active" class="nav-link">
           <span class="link-content">统计</span>
