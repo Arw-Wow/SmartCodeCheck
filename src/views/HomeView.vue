@@ -15,8 +15,8 @@
           <router-link to="/workspace" class="btn btn-primary btn-lg">
             打开工作台
           </router-link>
-          <router-link to="/detection" class="btn btn-secondary btn-lg">
-            经典检测
+          <router-link to="/comparison" class="btn btn-secondary btn-lg">
+            代码对比
           </router-link>
         </div>
 
