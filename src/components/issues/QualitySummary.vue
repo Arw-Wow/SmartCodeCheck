@@ -8,10 +8,19 @@
       <span v-if="qualityGate" class="gate" :class="gateClass">{{ qualityGateLabel }}</span>
     </div>
 
-    <div v-if="metricItems.length" class="metric-grid">
-      <div v-for="item in metricItems" :key="item.key" class="metric-item">
+    <div v-if="dimensionRatings.length" class="dimension-grid">
+      <div v-for="item in dimensionRatings" :key="item.dimension" class="dimension-item" :class="item.gradeClass">
+        <span>{{ dimensionLabel(item.dimension) }}</span>
+        <strong>{{ item.grade }}</strong>
+        <small>{{ item.score }} / 100 · {{ item.issueCount }} 个问题</small>
+      </div>
+    </div>
+
+    <div v-if="summaryItems.length" class="metric-grid">
+      <div v-for="item in summaryItems" :key="item.key" class="metric-item">
         <span>{{ item.label }}</span>
         <strong>{{ item.value }}</strong>
+        <small v-if="item.hint">{{ item.hint }}</small>
       </div>
     </div>
 
@@ -23,10 +32,12 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  facts: { type: Object, default: null }
+  facts: { type: Object, default: null },
+  issues: { type: Array, default: () => [] },
+  dimensions: { type: Array, default: () => [] }
 })
 
-const LABELS = {
+const STATIC_METRIC_LABELS = {
   bugs: 'Bugs',
   vulnerabilities: '漏洞',
   security_hotspots: '安全热点',
@@ -41,6 +52,24 @@ const LABELS = {
   sqale_rating: '可维护性'
 }
 
+const DIMENSION_LABELS = {
+  correctness: '正确性',
+  security: '安全性',
+  maintainability: '可维护性',
+  robustness: '鲁棒性',
+  performance: '性能',
+  readability: '可读性',
+  style: '风格'
+}
+
+const SEVERITY_PENALTY = {
+  critical: 28,
+  high: 20,
+  medium: 11,
+  low: 5,
+  info: 1
+}
+
 const RATING_LABELS = {
   1: 'A',
   2: 'B',
@@ -51,6 +80,7 @@ const RATING_LABELS = {
 
 const facts = computed(() => props.facts || {})
 const metrics = computed(() => facts.value.metrics || {})
+const issues = computed(() => props.issues || [])
 const analyzerLabel = computed(() => {
   const analyzer = facts.value.analyzer || 'builtin'
   if (analyzer.includes('sonarqube')) return 'SonarQube + 内置分析'
@@ -65,19 +95,86 @@ const qualityGateLabel = computed(() => {
   return qualityGate.value
 })
 const gateClass = computed(() => (qualityGate.value === 'OK' ? 'ok' : 'error'))
-const metricItems = computed(() => {
-  return Object.entries(LABELS)
+const staticMetricItems = computed(() => {
+  const sonarItems = Object.entries(STATIC_METRIC_LABELS)
     .filter(([key]) => metrics.value[key] !== undefined && metrics.value[key] !== null && metrics.value[key] !== '')
     .map(([key, label]) => ({ key, label, value: formatMetric(key, metrics.value[key]) }))
+  const builtinItems = [
+    facts.value.function_count ? { key: 'function_count', label: '函数数', value: facts.value.function_count } : null,
+    facts.value.class_count ? { key: 'class_count', label: '类数量', value: facts.value.class_count } : null,
+    facts.value.cyclomatic_complexity ? { key: 'cyclomatic_complexity', label: '圈复杂度', value: facts.value.cyclomatic_complexity } : null,
+    facts.value.max_nesting_depth ? { key: 'max_nesting_depth', label: '最大嵌套', value: facts.value.max_nesting_depth } : null,
+    facts.value.risk_calls?.length ? { key: 'risk_calls', label: '风险调用', value: facts.value.risk_calls.length } : null
+  ].filter(Boolean)
+  return [...sonarItems, ...builtinItems].slice(0, 6)
+})
+const generatedItems = computed(() => {
+  const severityCounts = countBy(issues.value, issue => issue.severity || 'info')
+  const sourceCounts = countBy(issues.value, issue => issue.source || 'unknown')
+  const dimensionCounts = countBy(issues.value, issue => issue.dimension || 'unknown')
+  const topDimension = topEntry(dimensionCounts)
+  const highRisk = (severityCounts.critical || 0) + (severityCounts.high || 0)
+  const llmCount = (sourceCounts.llm || 0) + (sourceCounts['static+llm'] || 0)
+  return [
+    { key: 'issue_total', label: '问题总数', value: issues.value.length, hint: highRisk ? `${highRisk} 个高风险` : '未发现高风险' },
+    { key: 'top_dimension', label: '主要方向', value: topDimension ? dimensionLabel(topDimension[0]) : '无', hint: topDimension ? `${topDimension[1]} 个问题` : '暂无问题' },
+    { key: 'llm_findings', label: '模型补充', value: llmCount, hint: llmCount ? 'AI 生成或合并发现' : '无模型补充问题' }
+  ]
+})
+const summaryItems = computed(() => [...generatedItems.value, ...staticMetricItems.value])
+const dimensionRatings = computed(() => {
+  const dimensions = props.dimensions?.length
+    ? props.dimensions
+    : [...new Set(issues.value.map(issue => issue.dimension).filter(Boolean))]
+  return dimensions.map(dimension => {
+    const dimensionIssues = issues.value.filter(issue => issue.dimension === dimension)
+    const score = scoreIssues(dimensionIssues)
+    return {
+      dimension,
+      score,
+      grade: gradeFor(score),
+      gradeClass: `grade-${gradeFor(score).toLowerCase()}`,
+      issueCount: dimensionIssues.length
+    }
+  })
 })
 const hasSummary = computed(() => {
-  return Boolean(facts.value.analyzer || qualityGate.value || metricItems.value.length || projectKey.value)
+  return Boolean(facts.value.analyzer || qualityGate.value || summaryItems.value.length || dimensionRatings.value.length || projectKey.value)
 })
 
 function formatMetric(key, value) {
   if (['coverage', 'duplicated_lines_density'].includes(key)) return `${value}%`
   if (['reliability_rating', 'security_rating', 'sqale_rating'].includes(key)) return RATING_LABELS[value] || value
   return value
+}
+
+function countBy(items, getter) {
+  return items.reduce((counts, item) => {
+    const key = getter(item)
+    counts[key] = (counts[key] || 0) + 1
+    return counts
+  }, {})
+}
+
+function topEntry(counts) {
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0] || null
+}
+
+function scoreIssues(items) {
+  const penalty = items.reduce((sum, issue) => sum + (SEVERITY_PENALTY[issue.severity] || 1) * (issue.confidence || 1), 0)
+  return Math.max(0, Math.round(100 - penalty))
+}
+
+function gradeFor(score) {
+  if (score >= 90) return 'A'
+  if (score >= 80) return 'B'
+  if (score >= 70) return 'C'
+  if (score >= 60) return 'D'
+  return 'E'
+}
+
+function dimensionLabel(value) {
+  return DIMENSION_LABELS[value] || value
 }
 </script>
 
@@ -128,13 +225,19 @@ h2 {
   background: rgba(218, 54, 51, 0.16);
 }
 
-.metric-grid {
+.metric-grid,
+.dimension-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-.metric-item {
+.dimension-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.metric-item,
+.dimension-item {
   min-width: 0;
   display: grid;
   gap: 3px;
@@ -143,7 +246,10 @@ h2 {
   background: rgba(255, 255, 255, 0.04);
 }
 
-.metric-item span {
+.metric-item span,
+.dimension-item span,
+.metric-item small,
+.dimension-item small {
   overflow: hidden;
   color: var(--text-secondary);
   font-size: 0.72rem;
@@ -151,16 +257,41 @@ h2 {
   white-space: nowrap;
 }
 
-.metric-item strong {
+.metric-item strong,
+.dimension-item strong {
   overflow: hidden;
   font-size: 1rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.dimension-item strong {
+  font-size: 1.25rem;
+}
+
+.grade-a strong,
+.grade-b strong {
+  color: #7ee787;
+}
+
+.grade-c strong {
+  color: #fbbf24;
+}
+
+.grade-d strong,
+.grade-e strong {
+  color: #ff7b72;
+}
+
 .project-key {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+@media (max-width: 1280px) {
+  .dimension-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 </style>

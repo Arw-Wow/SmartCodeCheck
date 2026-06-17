@@ -1,84 +1,241 @@
 <template>
-  <div class="workspace-v2">
-    <section class="toolbar">
-      <div class="toolbar-group">
-        <label>
-          <span>语言</span>
-          <select v-model="workspace.language">
-            <option>Python</option>
-            <option>JavaScript</option>
-            <option>Java</option>
-            <option>C++</option>
-            <option>Go</option>
-          </select>
-        </label>
-        <label>
-          <span>规则集</span>
-          <select v-model="workspace.selectedRuleSetId">
-            <option value="">不使用规则集</option>
-            <option v-for="item in workspace.ruleSets" :key="item.id" :value="String(item.id)">
-              {{ item.name }}
-            </option>
-          </select>
-        </label>
-        <router-link to="/rulesets" class="manage-link">管理规则集</router-link>
-      </div>
-      <button class="analyze-btn" :disabled="workspace.isAnalyzing" @click="workspace.analyze">
-        {{ workspace.isAnalyzing ? '分析中...' : '开始分析' }}
-      </button>
-      <span v-if="workspace.result" class="score">评分 {{ workspace.result.score }}</span>
-      <span v-if="workspace.notice" class="notice">{{ workspace.notice }}</span>
-      <span v-if="workspace.ruleSetsError" class="error">{{ workspace.ruleSetsError }}</span>
-      <span v-if="workspace.error" class="error">{{ workspace.error }}</span>
-    </section>
-
-    <section class="workspace-grid">
-      <div class="editor-shell">
-        <div class="editor-header">
-          <div class="window-controls">
-            <span class="dot red"></span>
-            <span class="dot yellow"></span>
-            <span class="dot green"></span>
-          </div>
-          <div class="editor-title">代码工作台</div>
-          <div class="lang-indicator">{{ workspace.language }}</div>
+  <div class="workspace-view">
+    <div class="workspace-container">
+      <aside class="panel-left glass-panel">
+        <div class="panel-header">
+          <h3>检测配置</h3>
         </div>
-        <SmartCodeEditor
-          ref="editor"
-          v-model="workspace.code"
-          :language="workspace.language"
-          :issues="workspace.visibleIssues"
-          :enabled-severities="workspace.enabledSeverities"
-        />
-      </div>
-      <aside>
-        <QualitySummary :facts="workspace.result?.facts" />
-        <IssueList
-          :issues="workspace.visibleIssues"
-          :all-issues="workspace.issues"
-          :filters="workspace.filters"
-          @update:filters="workspace.setFilters"
-          @select="focusIssue"
-        />
+
+        <div class="scroll-content">
+          <div class="config-item">
+            <label class="config-label">编程语言</label>
+            <div class="custom-select-wrapper">
+              <select v-model="workspace.language">
+                <option value="Auto">自动检测</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option>
+                <option value="C++">C++</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="TypeScript">TypeScript</option>
+                <option value="Go">Go</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="config-item">
+            <label class="config-label">模型选择</label>
+            <div class="custom-select-wrapper">
+              <select v-model="workspace.modelName">
+                <option value="deepseek-v3.1">DeepSeek V3.1</option>
+                <option value="qwen3-coder-plus">Qwen3 Coder+</option>
+                <option value="gpt-5-mini">GPT-5 Mini</option>
+                <option value="gpt-5">GPT-5</option>
+                <option value="gemini-3-pro-preview">Gemini 3 Pro</option>
+                <option value="my-finetuned-model">官方微调模型</option>
+                <option value="custom-local">自定义本地模型</option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="workspace.modelName === 'custom-local'" class="local-config-box">
+            <label>
+              <span>API Base URL</span>
+              <input v-model="workspace.localConfig.base_url" placeholder="http://localhost:11434/v1" />
+            </label>
+            <label>
+              <span>Model Name</span>
+              <input v-model="workspace.localConfig.model_name" placeholder="llama3, qwen2.5" />
+            </label>
+            <label>
+              <span>API Key</span>
+              <input v-model="workspace.localConfig.api_key" type="password" placeholder="EMPTY" />
+            </label>
+          </div>
+
+          <div class="config-item">
+            <label class="config-label">检测维度</label>
+            <DimensionSelector v-model="workspace.selectedDimensions" />
+          </div>
+
+          <div class="config-item">
+            <label class="config-label">规则集</label>
+            <div class="custom-select-wrapper">
+              <select v-model="workspace.selectedRuleSetId">
+                <option value="">不使用规则集</option>
+                <option v-for="item in workspace.ruleSets" :key="item.id" :value="String(item.id)">
+                  {{ item.name }}
+                </option>
+              </select>
+            </div>
+            <router-link to="/rulesets" class="inline-link">管理规则集</router-link>
+            <p v-if="workspace.ruleSetsError" class="error-tip">{{ workspace.ruleSetsError }}</p>
+          </div>
+
+          <label class="privacy-toggle">
+            <input v-model="workspace.privacyMode" type="checkbox" />
+            <span>隐私模式：历史记录不保存源码</span>
+          </label>
+
+          <details class="advanced-tools">
+            <summary>进阶工具</summary>
+            <div class="tool-links">
+              <router-link to="/evaluations" class="tool-link">
+                <span>批量评测</span>
+                <small>上传或粘贴 JSONL，批量跑样本</small>
+              </router-link>
+              <router-link to="/settings/models" class="tool-link">
+                <span>模型配置</span>
+                <small>维护可复用的本地或云端模型</small>
+              </router-link>
+            </div>
+          </details>
+        </div>
+
+        <div class="panel-footer">
+          <button v-if="!workspace.isAnalyzing" class="btn-action primary" @click="handleAnalyze">
+            深度分析
+          </button>
+          <button v-else class="btn-action danger pulsate" @click="handleStop">
+            终止分析
+          </button>
+          <p v-if="workspace.error" class="error-tip">{{ workspace.error }}</p>
+          <p v-if="workspace.notice" class="notice-tip">{{ workspace.notice }}</p>
+        </div>
       </aside>
-    </section>
+
+      <main class="panel-center">
+        <details class="instruction-accordion">
+          <summary>
+            <span>附加生成指令 / Context</span>
+            <span class="sub-text">可选</span>
+          </summary>
+          <textarea
+            v-model="workspace.generationInstruction"
+            placeholder="输入额外上下文或生成要求，例如：这段代码来自用户输入处理函数。"
+          ></textarea>
+        </details>
+
+        <div class="editor-shell">
+          <div class="editor-header">
+            <div class="editor-title">代码工作台</div>
+            <div class="lang-indicator">{{ workspace.language }}</div>
+          </div>
+          <SmartCodeEditor
+            ref="editor"
+            v-model="workspace.code"
+            :language="workspace.language"
+            :issues="workspace.visibleIssues"
+            :enabled-severities="workspace.enabledSeverities"
+          />
+        </div>
+      </main>
+
+      <aside class="panel-right glass-panel">
+        <div class="tabs-nav">
+          <button :class="['tab-item', { active: activeTab === 'result' }]" @click="activeTab = 'result'">
+            分析结果
+          </button>
+          <button :class="['tab-item', { active: activeTab === 'history' }]" @click="openHistory">
+            历史记录
+          </button>
+        </div>
+
+        <div class="scroll-content result-content">
+          <section v-if="activeTab === 'result'" class="result-panel">
+            <div v-if="workspace.result" class="result-toolbar">
+              <span>检测完成</span>
+              <div class="btn-group">
+                <button @click="exportJSON">JSON</button>
+                <button @click="exportMD">MD</button>
+              </div>
+            </div>
+
+            <div v-if="!workspace.result && !workspace.isAnalyzing && !workspace.isLoading" class="empty-placeholder">
+              <p>配置参数并点击“深度分析”</p>
+            </div>
+
+            <div v-if="workspace.isAnalyzing || workspace.isLoading" class="loading-placeholder">
+              <div class="loader-ring"></div>
+              <p>{{ workspace.isLoading ? '正在恢复历史记录...' : '静态分析与 AI 检测中...' }}</p>
+            </div>
+
+            <template v-if="workspace.result">
+              <div class="score-card-modern" :class="getScoreColorClass(workspace.result.score)">
+                <div class="score-number">{{ workspace.result.score }}</div>
+                <div class="score-label">综合评分</div>
+              </div>
+
+              <QualitySummary
+                :facts="workspace.result.facts"
+                :issues="workspace.issues"
+                :dimensions="workspace.selectedDimensions"
+              />
+
+              <section v-if="workspace.result.warnings?.length" class="warning-list">
+                <strong>分析提示</strong>
+                <p v-for="warning in workspace.result.warnings" :key="warning">{{ warning }}</p>
+              </section>
+
+              <IssueList
+                :issues="workspace.visibleIssues"
+                :all-issues="workspace.issues"
+                :filters="workspace.filters"
+                @update:filters="workspace.setFilters"
+                @select="focusIssue"
+              />
+            </template>
+          </section>
+
+          <section v-else class="history-panel">
+            <div v-if="workspace.historyLoading" class="empty-placeholder">
+              <p>正在加载历史记录...</p>
+            </div>
+            <div v-else-if="!workspace.runs.length" class="empty-placeholder">
+              <p>暂无历史分析</p>
+            </div>
+            <template v-else>
+              <button
+                v-for="run in workspace.runs"
+                :key="run.id"
+                class="run-row"
+                @click="restoreRun(run.id)"
+              >
+                <span>
+                  <strong>#{{ run.id }} · {{ run.language }}</strong>
+                  <small>{{ formatDate(run.createdAt) }} · {{ run.modelName }}</small>
+                </span>
+                <b>{{ run.score }}</b>
+                <em>{{ run.privacyMode ? '恢复结果' : '恢复现场' }}</em>
+              </button>
+            </template>
+          </section>
+        </div>
+      </aside>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import DimensionSelector from '@/components/analysis/DimensionSelector.vue'
 import SmartCodeEditor from '@/components/editor/SmartCodeEditor.vue'
 import IssueList from '@/components/issues/IssueList.vue'
 import QualitySummary from '@/components/issues/QualitySummary.vue'
+import { useToastStore } from '@/stores/toast'
 import { useWorkspaceStore } from '@/stores/workspace'
+import { downloadFile, generateWorkspaceMarkdown } from '@/utils/export'
 
 const editor = ref(null)
 const route = useRoute()
+const toast = useToastStore()
 const workspace = useWorkspaceStore()
+const activeTab = ref('result')
+let abortController = null
 
 onMounted(() => {
   workspace.loadRuleSets()
+  workspace.loadRuns()
   restoreFromRoute(route.query.runId)
 })
 
@@ -86,6 +243,31 @@ watch(
   () => route.query.runId,
   (runId) => restoreFromRoute(runId)
 )
+
+async function handleAnalyze() {
+  if (!workspace.code.trim()) return toast.warning('请输入需要检测的代码')
+  if (!workspace.selectedDimensions.length) return toast.warning('请至少选择一个检测维度')
+  activeTab.value = 'result'
+  abortController = new AbortController()
+  await workspace.analyze(abortController.signal)
+  abortController = null
+  if (workspace.status === 'success') toast.success('分析完成')
+}
+
+function handleStop() {
+  abortController?.abort()
+}
+
+async function openHistory() {
+  activeTab.value = 'history'
+  await workspace.loadRuns()
+}
+
+async function restoreRun(runId) {
+  activeTab.value = 'result'
+  await workspace.loadRun(runId)
+  if (!workspace.error) toast.success('历史记录已恢复')
+}
 
 function focusIssue(issue) {
   const line = workspace.selectIssue(issue)
@@ -98,180 +280,420 @@ function restoreFromRoute(runId) {
   if (!Number.isFinite(normalized) || normalized === workspace.lastRunId) return
   workspace.loadRun(normalized)
 }
+
+function exportJSON() {
+  downloadFile(JSON.stringify(workspace.result, null, 2), `workspace_report_${Date.now()}.json`, 'application/json')
+}
+
+function exportMD() {
+  downloadFile(generateWorkspaceMarkdown(workspace.result, workspace.language), `workspace_report_${Date.now()}.md`, 'text/markdown')
+}
+
+function formatDate(value) {
+  if (!value) return '未知时间'
+  return new Date(value).toLocaleString()
+}
+
+function getScoreColorClass(score) {
+  if (score >= 90) return 'score-high'
+  if (score >= 70) return 'score-mid'
+  return 'score-low'
+}
 </script>
 
 <style scoped>
-.workspace-v2 {
+.workspace-view {
   height: calc(100vh - 64px);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  overflow: hidden;
   padding: 16px;
   box-sizing: border-box;
 }
 
-.toolbar {
+.workspace-container {
+  display: grid;
+  grid-template-columns: 292px minmax(0, 1fr) 380px;
+  gap: 16px;
+  height: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
+.glass-panel {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 8px 10px;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  background: rgba(22, 27, 34, 0.75);
-  overflow-x: auto;
+  background: rgba(22, 27, 34, 0.78);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
 }
 
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+.panel-header,
+.panel-footer {
+  padding: 16px;
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
-.toolbar label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.panel-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.panel-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.scroll-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.config-item {
+  margin-bottom: 22px;
+}
+
+.config-label,
+.local-config-box span {
+  display: block;
+  margin-bottom: 8px;
   color: var(--text-secondary);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
+  font-weight: 600;
 }
 
-.toolbar select,
-.toolbar button,
-.manage-link {
-  height: 34px;
-  border-radius: 6px;
+.custom-select-wrapper select,
+.local-config-box input,
+.instruction-accordion textarea {
+  width: 100%;
+  box-sizing: border-box;
   border: 1px solid var(--border-color);
-  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.28);
   color: var(--text-primary);
-  padding: 0 12px;
 }
 
-.toolbar select {
-  min-width: 132px;
+.custom-select-wrapper select,
+.local-config-box input {
+  height: 38px;
+  padding: 0 10px;
 }
 
-.manage-link {
+.local-config-box,
+.advanced-tools,
+.warning-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 22px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.privacy-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 22px;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.inline-link {
   display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  font-size: 0.86rem;
+  margin-top: 8px;
+  color: var(--primary-color);
+  font-size: 0.84rem;
 }
 
-.manage-link:hover {
-  border-color: var(--primary-color);
-}
-
-.analyze-btn {
-  margin-left: auto;
-  min-width: 104px;
-  background: var(--primary-color) !important;
-  color: #fff !important;
+.advanced-tools summary {
+  cursor: pointer;
   font-weight: 700;
 }
 
-.analyze-btn:disabled {
-  cursor: wait;
-  opacity: 0.7;
+.tool-links {
+  display: grid;
+  gap: 8px;
 }
 
-.workspace-grid {
-  min-height: 0;
-  flex: 1;
+.tool-link {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tool-link small,
+.notice-tip,
+.warning-list p,
+.run-row small,
+.run-row em {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.btn-action {
+  width: 100%;
+  min-height: 42px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.btn-action.primary {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.btn-action.danger {
+  border: 1px solid rgba(218, 54, 51, 0.35);
+  background: rgba(218, 54, 51, 0.18);
+  color: #ff7b72;
+}
+
+.error-tip {
+  margin: 8px 0 0;
+  color: #ff7b72;
+  font-size: 0.8rem;
+}
+
+.notice-tip {
+  margin: 8px 0 0;
+}
+
+.panel-center {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
   gap: 12px;
 }
 
-.editor-shell {
-  min-width: 0;
-  min-height: 0;
+.instruction-accordion summary {
   display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: rgba(22, 27, 34, 0.75);
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.sub-text {
+  margin-left: auto;
+  font-size: 0.76rem;
+}
+
+.instruction-accordion textarea {
+  min-height: 92px;
+  margin-top: 8px;
+  padding: 10px;
+  resize: vertical;
+}
+
+.editor-shell {
+  display: flex;
+  min-height: 0;
+  flex: 1;
   flex-direction: column;
   overflow: hidden;
-  background: #0d0d0d;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  background: #0d0d0d;
 }
 
 .editor-header {
-  flex: 0 0 36px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 10px;
-  background: #1e1e1e;
+  min-height: 38px;
+  padding: 0 12px;
   border-bottom: 1px solid #2b2b2b;
+  background: #1e1e1e;
 }
-
-.window-controls {
-  display: flex;
-  gap: 6px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.red { background: #ff5f56; }
-.yellow { background: #ffbd2e; }
-.green { background: #27c93f; }
 
 .editor-title {
-  color: var(--text-primary);
-  font-size: 0.86rem;
   font-weight: 700;
 }
 
 .lang-indicator {
   margin-left: auto;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text-secondary);
   font-family: monospace;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
 }
 
-.workspace-grid aside {
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.tabs-nav {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding: 8px;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.score {
-  color: var(--success-color);
-}
-
-.notice {
+.tab-item {
+  min-height: 34px;
+  border-radius: 6px;
   color: var(--text-secondary);
+  background: transparent;
 }
 
-.error {
-  color: #ff6b6b;
+.tab-item.active {
+  color: #fff;
+  background: rgba(59, 130, 246, 0.18);
 }
 
-@media (max-width: 980px) {
-  .workspace-v2 {
+.result-panel,
+.history-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.result-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-group {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-group button {
+  min-height: 30px;
+  border-radius: 6px;
+  padding: 0 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.empty-placeholder,
+.loading-placeholder {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.loader-ring {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.16);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.score-card-modern {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  padding: 18px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.score-number {
+  font-size: 2.6rem;
+  font-weight: 800;
+}
+
+.score-high .score-number { color: #7ee787; }
+.score-mid .score-number { color: #fbbf24; }
+.score-low .score-number { color: #ff7b72; }
+
+.score-label {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.warning-list strong {
+  font-size: 0.86rem;
+}
+
+.warning-list p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.run-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 54px 72px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.run-row:hover {
+  border-color: var(--primary-color);
+}
+
+.run-row span {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.run-row strong,
+.run-row small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.run-row b {
+  color: var(--success-color);
+  text-align: right;
+}
+
+.run-row em {
+  font-style: normal;
+  text-align: right;
+}
+
+@media (max-width: 1180px) {
+  .workspace-view {
     height: auto;
-    min-height: calc(100vh - 64px);
+    overflow: visible;
   }
 
-  .workspace-grid {
+  .workspace-container {
     grid-template-columns: 1fr;
   }
 
   .editor-shell {
-    min-height: 520px;
-  }
-
-  .analyze-btn {
-    margin-left: 0;
+    min-height: 560px;
   }
 }
 </style>

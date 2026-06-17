@@ -4,6 +4,7 @@ import { Decoration, EditorView, gutter, GutterMarker } from '@codemirror/view'
 export const setIssuesEffect = StateEffect.define()
 
 const severityClass = (severity) => `cm-issue-${severity || 'info'}`
+const EMPTY_ISSUE_STATE = { issues: [], enabledSeverities: null }
 
 export function issueLineRanges(doc, issues, enabledSeverities = null) {
   const ranges = []
@@ -35,7 +36,24 @@ export function buildIssueDecorations(doc, issues, enabledSeverities = null) {
   return builder.finish()
 }
 
-const issueField = StateField.define({
+const issuePayloadField = StateField.define({
+  create() {
+    return EMPTY_ISSUE_STATE
+  },
+  update(value, transaction) {
+    for (const effect of transaction.effects) {
+      if (effect.is(setIssuesEffect)) {
+        return {
+          issues: effect.value.issues || [],
+          enabledSeverities: effect.value.enabledSeverities || null
+        }
+      }
+    }
+    return value
+  }
+})
+
+const issueDecorationField = StateField.define({
   create() {
     return Decoration.none
   },
@@ -69,9 +87,12 @@ export function issueGutter(issues = []) {
   return gutter({
     class: 'cm-issue-gutter-wrap',
     markers(view) {
+      const payload = view.state.field(issuePayloadField, false) || EMPTY_ISSUE_STATE
+      const activeIssues = payload.issues?.length ? payload.issues : issues
       const builder = new RangeSetBuilder()
-      for (const issue of issues) {
+      for (const issue of activeIssues) {
         if (!issue.line_start || issue.line_start > view.state.doc.lines) continue
+        if (payload.enabledSeverities && !payload.enabledSeverities.has(issue.severity)) continue
         const line = view.state.doc.line(issue.line_start)
         builder.add(line.from, line.from, new IssueMarker(issue))
       }
@@ -81,5 +102,5 @@ export function issueGutter(issues = []) {
 }
 
 export function issueDecorationsExtension() {
-  return issueField
+  return [issuePayloadField, issueDecorationField]
 }

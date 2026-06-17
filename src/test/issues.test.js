@@ -19,6 +19,14 @@ describe('issue utilities', () => {
     expect(result).toEqual([issues[1]])
   })
 
+  it('filters issue aliases and array fields from restored payloads', () => {
+    const restored = [
+      { id: '4', severity: 'High', target_dimensions: ['Security'], sources: ['Static'], line_start: 2 },
+      { id: '5', level: 'low', category: 'style', provider: 'llm' }
+    ]
+    expect(filterIssues(restored, { severities: ['high'], dimensions: ['security'], sources: ['static'] })).toEqual([restored[0]])
+  })
+
   it('sorts by severity then line', () => {
     expect(sortIssues(issues).map(issue => issue.id)).toEqual(['2', '3', '1'])
   })

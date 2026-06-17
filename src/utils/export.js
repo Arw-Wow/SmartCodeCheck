@@ -39,6 +39,45 @@ export function generateDetectionMarkdown(result, language) {
 }
 
 /**
+ * 将 v2 工作台结果转换为 Markdown 格式
+ */
+export function generateWorkspaceMarkdown(result, language) {
+  let md = `# 工作台代码质量分析报告\n\n`
+  md += `**检测时间**: ${new Date().toLocaleString()}\n`
+  md += `**语言**: ${language}\n`
+  md += `**综合评分**: ${result.score}\n\n`
+
+  if (result.facts?.analyzer) {
+    md += `## 静态分析概览\n`
+    md += `- **分析器**: ${result.facts.analyzer}\n`
+    if (result.facts.quality_gate) md += `- **质量门禁**: ${result.facts.quality_gate}\n`
+    if (result.facts.project_key) md += `- **项目 Key**: ${result.facts.project_key}\n`
+    md += `\n`
+  }
+
+  if (result.warnings?.length) {
+    md += `## 分析提示\n`
+    result.warnings.forEach(warning => {
+      md += `- ${warning}\n`
+    })
+    md += `\n`
+  }
+
+  md += `## 问题列表\n`
+  ;(result.issues || []).forEach((issue, index) => {
+    md += `### ${index + 1}. [${issue.severity}] ${issue.dimension}\n`
+    md += `- **来源**: ${issue.source}\n`
+    md += `- **描述**: ${issue.description}\n`
+    if (issue.line_start) md += `- **位置**: Line ${issue.line_start}${issue.line_end && issue.line_end !== issue.line_start ? `-${issue.line_end}` : ''}\n`
+    if (issue.evidence?.length) md += `- **证据**: ${issue.evidence.join('; ')}\n`
+    if (issue.impact) md += `- **影响**: ${issue.impact}\n`
+    md += `- **建议**: ${issue.suggestion}\n\n`
+  })
+
+  return md
+}
+
+/**
  * 将对比结果转换为 Markdown 格式
  */
 export function generateComparisonMarkdown(result, language) {

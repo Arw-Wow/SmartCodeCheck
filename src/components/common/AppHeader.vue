@@ -8,9 +8,6 @@
         <router-link to="/" active-class="active" class="nav-link">
           <span class="link-content">首页</span>
         </router-link>
-        <router-link to="/detection" active-class="active" class="nav-link">
-          <span class="link-content">代码检测</span>
-        </router-link>
         <router-link to="/comparison" active-class="active" class="nav-link">
           <span class="link-content">代码对比</span>
         </router-link>

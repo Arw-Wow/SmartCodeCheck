@@ -2,32 +2,32 @@
   <div class="issue-list">
     <div class="issue-filters">
       <details class="filter-menu">
-        <summary>Severity: {{ labelFor(filters.severities) }}</summary>
-        <label><input type="checkbox" :checked="!filters.severities.length" @change="clearFilter('severities')" /> All</label>
+        <summary>严重程度：{{ labelFor(filters.severities) }}</summary>
+        <label><input type="checkbox" :checked="!filters.severities.length" @change="clearFilter('severities')" /> 全部</label>
         <label v-for="item in options.severities" :key="item">
           <input type="checkbox" :checked="filters.severities.includes(item)" @change="toggleFilter('severities', item)" />
-          {{ item }}
+          {{ severityLabel(item) }}
         </label>
       </details>
       <details class="filter-menu">
-        <summary>Dimension: {{ labelFor(filters.dimensions) }}</summary>
-        <label><input type="checkbox" :checked="!filters.dimensions.length" @change="clearFilter('dimensions')" /> All</label>
+        <summary>维度：{{ labelFor(filters.dimensions) }}</summary>
+        <label><input type="checkbox" :checked="!filters.dimensions.length" @change="clearFilter('dimensions')" /> 全部</label>
         <label v-for="item in options.dimensions" :key="item">
           <input type="checkbox" :checked="filters.dimensions.includes(item)" @change="toggleFilter('dimensions', item)" />
           {{ item }}
         </label>
       </details>
       <details class="filter-menu">
-        <summary>Source: {{ labelFor(filters.sources) }}</summary>
-        <label><input type="checkbox" :checked="!filters.sources.length" @change="clearFilter('sources')" /> All</label>
+        <summary>来源：{{ labelFor(filters.sources) }}</summary>
+        <label><input type="checkbox" :checked="!filters.sources.length" @change="clearFilter('sources')" /> 全部</label>
         <label v-for="item in options.sources" :key="item">
           <input type="checkbox" :checked="filters.sources.includes(item)" @change="toggleFilter('sources', item)" />
-          {{ item }}
+          {{ sourceLabel(item) }}
         </label>
       </details>
     </div>
 
-    <p v-if="!issues.length" class="empty-state">No issues match the current filters.</p>
+    <p v-if="!issues.length" class="empty-state">当前筛选条件下没有问题。</p>
 
     <div class="issue-rows">
       <button
@@ -41,7 +41,7 @@
           <strong>{{ issue.id }}</strong>
           <span>{{ issue.description }}</span>
         </span>
-        <span class="issue-meta">{{ issue.severity }} · {{ issue.dimension }} · {{ issue.source }}</span>
+        <span class="issue-meta">{{ severityLabel(issue.severity) }} · {{ issue.dimension }} · {{ sourceLabel(issue.source) }}</span>
         <span v-if="issue.line_start" class="issue-line">Ln {{ issue.line_start }}</span>
       </button>
     </div>
@@ -62,9 +62,9 @@ const emit = defineEmits(['select', 'update:filters'])
 const options = computed(() => issueFilterOptions(props.allIssues || props.issues))
 
 function labelFor(values = []) {
-  if (!values.length) return 'All'
+  if (!values.length) return '全部'
   if (values.length === 1) return values[0]
-  return `${values.length} selected`
+  return `已选 ${values.length} 项`
 }
 
 function clearFilter(key) {
@@ -76,6 +76,25 @@ function toggleFilter(key, value) {
   if (values.has(value)) values.delete(value)
   else values.add(value)
   emit('update:filters', { ...props.filters, [key]: [...values] })
+}
+
+function severityLabel(value) {
+  return {
+    critical: '致命',
+    high: '高',
+    medium: '中',
+    low: '低',
+    info: '提示'
+  }[value] || value
+}
+
+function sourceLabel(value) {
+  return {
+    static: '静态分析',
+    llm: 'AI 分析',
+    'static+llm': '静态+AI',
+    validation: '验证'
+  }[value] || value
 }
 </script>
 

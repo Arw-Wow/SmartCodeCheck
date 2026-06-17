@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useGlobalDataStore } from '@/stores/index'
 import HomeView from '@/views/HomeView.vue'
-import DetectionView from '@/views/DetectionView.vue'
 import ComparisonView from '@/views/ComparisonView.vue'
 import WorkspaceView from '@/views/WorkspaceView.vue'
 import RuleSetsView from '@/views/RuleSetsView.vue'
@@ -16,12 +15,7 @@ const routes = [
   { path: '/', name: 'Home', component: HomeView },
   { path: '/login', name: 'Login', component: LoginView },
   { path: '/register', name: 'Register', component: RegisterView },
-  { 
-    path: '/detection', 
-    name: 'Detection', 
-    component: DetectionView,
-    meta: { requiresAuth: true } // 标记需要登录
-  },
+  { path: '/detection', redirect: '/workspace' },
   {
     path: '/workspace',
     name: 'Workspace',

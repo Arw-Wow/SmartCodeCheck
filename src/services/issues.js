@@ -7,14 +7,14 @@ const SEVERITY_ORDER = {
 }
 
 export function filterIssues(issues, filters = {}) {
-  const severities = new Set(filters.severities || [])
-  const dimensions = new Set(filters.dimensions || [])
-  const sources = new Set(filters.sources || [])
+  const severities = normalizedSet(filters.severities)
+  const dimensions = normalizedSet(filters.dimensions)
+  const sources = normalizedSet(filters.sources)
 
   return (issues || []).filter(issue => {
-    if (severities.size && !severities.has(issue.severity)) return false
-    if (dimensions.size && !dimensions.has(issue.dimension)) return false
-    if (sources.size && !sources.has(issue.source)) return false
+    if (severities.size && !hasAnyValue(issueValues(issue, 'severity'), severities)) return false
+    if (dimensions.size && !hasAnyValue(issueValues(issue, 'dimension'), dimensions)) return false
+    if (sources.size && !hasAnyValue(issueValues(issue, 'source'), sources)) return false
     return true
   })
 }
@@ -32,7 +32,7 @@ export function issueFilterOptions(issues) {
   const values = (key) => [
     ...new Set(
       (issues || [])
-        .map(issue => issue[key])
+        .flatMap(issue => issueValues(issue, key))
         .filter(value => value && !placeholderValues.has(String(value).toLowerCase()))
     )
   ].sort()
@@ -41,4 +41,26 @@ export function issueFilterOptions(issues) {
     dimensions: values('dimension'),
     sources: values('source')
   }
+}
+
+function normalizedSet(values = []) {
+  return new Set((values || []).map(normalizeValue).filter(Boolean))
+}
+
+function hasAnyValue(values, allowed) {
+  return values.some(value => allowed.has(normalizeValue(value)))
+}
+
+function issueValues(issue, key) {
+  if (!issue) return []
+  const candidates = {
+    severity: [issue.severity, issue.level],
+    dimension: [issue.dimension, issue.dimensions, issue.target_dimension, issue.target_dimensions, issue.category],
+    source: [issue.source, issue.sources, issue.provider, issue.analyzer]
+  }[key] || [issue[key]]
+  return candidates.flatMap(value => Array.isArray(value) ? value : [value]).filter(value => value !== undefined && value !== null && value !== '')
+}
+
+function normalizeValue(value) {
+  return String(value || '').trim().toLowerCase()
 }

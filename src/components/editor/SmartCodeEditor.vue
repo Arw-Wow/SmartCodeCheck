@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { EditorView } from '@codemirror/view'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -38,6 +38,7 @@ const view = ref(null)
 
 watch(() => props.modelValue, (value) => {
   if (value !== code.value) code.value = value
+  nextTick(() => dispatchIssues())
 })
 
 watch(() => [props.issues, props.enabledSeverities], () => {

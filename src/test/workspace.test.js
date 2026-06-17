@@ -10,7 +10,7 @@ describe('workspace store', () => {
   it('restores run detail with code and issues', () => {
     const store = useWorkspaceStore()
     store.restoreRunDetail({
-      run: { id: 12, language: 'Python', score: 83, warnings: [], privacy_mode: false },
+      run: { id: 12, language: 'Python', score: 83, warnings: ['SonarScanner completed for project `smartcodecheck-workbench`.', 'LLM analysis failed: timeout'], privacy_mode: false },
       issues: [{ id: 'ISSUE-001', severity: 'high', dimension: 'security', source: 'static' }],
       snapshot: {
         code_content: 'print(1)\n',
@@ -24,6 +24,7 @@ describe('workspace store', () => {
     expect(store.lastRunId).toBe(12)
     expect(store.selectedRuleSetId).toBe('7')
     expect(store.visibleIssues).toHaveLength(1)
+    expect(store.result.warnings).toEqual(['LLM analysis failed: timeout'])
     expect(store.notice).toBe('已恢复第 12 次分析。')
   })
 
