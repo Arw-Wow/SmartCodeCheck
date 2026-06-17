@@ -26,9 +26,10 @@ describe('workspace store', () => {
     expect(store.visibleIssues).toHaveLength(1)
     expect(store.result.warnings).toEqual(['LLM analysis failed: timeout'])
     expect(store.notice).toBe('已恢复第 12 次分析。')
+    expect(store.privacyCodeProtected).toBe(false)
   })
 
-  it('does not clear current code when restoring privacy-mode runs', () => {
+  it('marks editor code as protected when restoring privacy-mode runs', () => {
     const store = useWorkspaceStore()
     store.code = 'current draft'
     store.restoreRunDetail({
@@ -44,5 +45,20 @@ describe('workspace store', () => {
 
     expect(store.code).toBe('current draft')
     expect(store.notice).toContain('隐私模式')
+    expect(store.privacyCodeProtected).toBe(true)
+
+    store.restoreRunDetail({
+      run: { id: 14, language: 'Python', score: 76, warnings: [], privacy_mode: false },
+      issues: [],
+      snapshot: {
+        code_content: 'restored code',
+        request_payload: { language: 'Python' },
+        result_payload: {},
+        privacy_mode: false
+      }
+    })
+
+    expect(store.code).toBe('restored code')
+    expect(store.privacyCodeProtected).toBe(false)
   })
 })

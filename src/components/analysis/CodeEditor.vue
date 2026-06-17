@@ -30,7 +30,7 @@
     </div>
 
     <div class="editor-body-area">
-      <div v-show="mode === 'paste'" class="cm-layout-fixer">
+      <div v-show="mode === 'paste'" :class="['cm-layout-fixer', { protected: privacyProtected }]">
         <codemirror
           v-model="code"
           placeholder="// 在此处粘贴代码，或使用上传功能..."
@@ -42,6 +42,12 @@
           @ready="handleReady"
           @change="handleChange"
         />
+      </div>
+
+      <div v-if="privacyProtected && mode === 'paste'" class="privacy-protected-overlay" aria-live="polite">
+        <div class="privacy-lock-icon" aria-hidden="true"></div>
+        <strong>隐私代码已被保护</strong>
+        <span>该历史记录未保存源码，仅恢复检测结果。当前编辑器内容不会被历史源码覆盖。</span>
       </div>
 
       <div v-show="mode === 'upload'" class="upload-area" @dragover.prevent @drop.prevent="handleDrop">
@@ -75,7 +81,8 @@ const props = defineProps({
   modelValue: { type: String, default: '' },
   language: { type: String, default: 'Python' },
   issues: { type: Array, default: () => [] },
-  enabledSeverities: { type: Object, default: null }
+  enabledSeverities: { type: Object, default: null },
+  privacyProtected: { type: Boolean, default: false }
 })
 const emit = defineEmits(['update:modelValue', 'line-focus'])
 
@@ -93,6 +100,10 @@ watch(() => props.modelValue, (newVal) => {
 watch(() => [props.issues, props.enabledSeverities], () => {
   dispatchIssues()
 }, { deep: true })
+
+watch(() => props.privacyProtected, (isProtected) => {
+  if (isProtected) mode.value = 'paste'
+})
 
 const handleChange = (newVal) => {
   emit('update:modelValue', newVal)
@@ -253,6 +264,9 @@ const handleDrop = (event) => {
 .cm-layout-fixer {
   position: absolute; top: 0; bottom: 0; left: 0; right: 0; height: 100%;
 }
+.cm-layout-fixer.protected {
+  filter: brightness(0.42) saturate(0.72);
+}
 :deep(.cm-editor) { height: 100%; outline: none; background: #0d0d0d !important; }
 :deep(.cm-scroller) {
   font-family: 'Fira Code', 'Consolas', monospace;
@@ -292,6 +306,68 @@ const handleDrop = (event) => {
   font-size: 10px;
   font-weight: 700;
   color: white;
+}
+
+.privacy-protected-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  padding: 24px;
+  background: rgba(3, 7, 18, 0.62);
+  color: #f8fafc;
+  text-align: center;
+  pointer-events: none;
+}
+
+.privacy-protected-overlay strong {
+  font-size: 1.18rem;
+  font-weight: 800;
+}
+
+.privacy-protected-overlay span {
+  max-width: 460px;
+  color: #cbd5e1;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.privacy-lock-icon {
+  position: relative;
+  width: 58px;
+  height: 44px;
+  border: 3px solid rgba(248, 250, 252, 0.92);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.82);
+  box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.12), 0 18px 40px rgba(0, 0, 0, 0.42);
+}
+
+.privacy-lock-icon::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 31px;
+  width: 31px;
+  height: 24px;
+  border: 4px solid rgba(248, 250, 252, 0.92);
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  transform: translateX(-50%);
+}
+
+.privacy-lock-icon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 15px;
+  width: 7px;
+  height: 15px;
+  border-radius: 5px;
+  background: #60a5fa;
+  transform: translateX(-50%);
 }
 
 /* 拖拽上传美化 */

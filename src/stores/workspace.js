@@ -36,6 +36,7 @@ export const useWorkspaceStore = defineStore('workspace-v2', () => {
   const ruleSetsError = ref('')
   const runs = ref([])
   const historyLoading = ref(false)
+  const privacyCodeProtected = ref(false)
 
   const isAnalyzing = computed(() => status.value === 'analyzing')
   const isLoading = computed(() => status.value === 'loading')
@@ -48,6 +49,7 @@ export const useWorkspaceStore = defineStore('workspace-v2', () => {
   async function analyze(signal) {
     error.value = ''
     notice.value = ''
+    privacyCodeProtected.value = false
     status.value = 'analyzing'
     try {
       const response = await v2Api.analyze({
@@ -112,6 +114,7 @@ export const useWorkspaceStore = defineStore('workspace-v2', () => {
   }
 
   function applyAnalysisResult(data) {
+    privacyCodeProtected.value = false
     result.value = { ...data, warnings: visibleWarnings(data.warnings) }
     issues.value = data.issues || []
     lastRunId.value = data.run_id || null
@@ -125,8 +128,10 @@ export const useWorkspaceStore = defineStore('workspace-v2', () => {
 
     if (snapshot.code_content !== null && snapshot.code_content !== undefined) {
       code.value = snapshot.code_content
+      privacyCodeProtected.value = false
       notice.value = `已恢复第 ${detail.run.id} 次分析。`
     } else {
+      privacyCodeProtected.value = true
       notice.value = `第 ${detail.run.id} 次分析为隐私模式，仅恢复结果，不覆盖当前代码。`
     }
 
@@ -186,6 +191,7 @@ export const useWorkspaceStore = defineStore('workspace-v2', () => {
     ruleSetsError.value = ''
     runs.value = []
     historyLoading.value = false
+    privacyCodeProtected.value = false
   }
 
   function notifyStatsChanged() {
@@ -218,6 +224,7 @@ export const useWorkspaceStore = defineStore('workspace-v2', () => {
     ruleSetsError,
     runs,
     historyLoading,
+    privacyCodeProtected,
     isAnalyzing,
     isLoading,
     visibleIssues,

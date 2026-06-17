@@ -123,6 +123,7 @@
           :language="workspace.language"
           :issues="workspace.visibleIssues"
           :enabled-severities="workspace.enabledSeverities"
+          :privacy-protected="workspace.privacyCodeProtected"
         />
       </main>
 
