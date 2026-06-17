@@ -76,6 +76,10 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   height: 40px;
+  width: min(1680px, calc(100% - 48px));
+  max-width: none;
+  padding: 0;
+  margin: 0 auto;
 }
 
 /* --- 1. 左侧 Logo 区域 --- */
@@ -149,6 +153,7 @@ const handleLogout = () => {
   .header-inner {
     flex-wrap: wrap;
     row-gap: 10px;
+    width: calc(100% - 32px);
   }
 
   .logo-wrapper {

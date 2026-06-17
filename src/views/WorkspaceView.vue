@@ -115,19 +115,14 @@
           ></textarea>
         </details>
 
-        <div class="editor-shell">
-          <div class="editor-header">
-            <div class="editor-title">代码工作台</div>
-            <div class="lang-indicator">{{ workspace.language }}</div>
-          </div>
-          <SmartCodeEditor
-            ref="editor"
-            v-model="workspace.code"
-            :language="workspace.language"
-            :issues="workspace.visibleIssues"
-            :enabled-severities="workspace.enabledSeverities"
-          />
-        </div>
+        <CodeEditor
+          ref="editor"
+          v-model="workspace.code"
+          class="workspace-code-editor"
+          :language="workspace.language"
+          :issues="workspace.visibleIssues"
+          :enabled-severities="workspace.enabledSeverities"
+        />
       </main>
 
       <aside class="panel-right glass-panel">
@@ -219,7 +214,7 @@
 import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import DimensionSelector from '@/components/analysis/DimensionSelector.vue'
-import SmartCodeEditor from '@/components/editor/SmartCodeEditor.vue'
+import CodeEditor from '@/components/analysis/CodeEditor.vue'
 import IssueList from '@/components/issues/IssueList.vue'
 import QualitySummary from '@/components/issues/QualitySummary.vue'
 import { useToastStore } from '@/stores/toast'
@@ -527,38 +522,9 @@ function getScoreColorClass(score) {
   resize: vertical;
 }
 
-.editor-shell {
-  display: flex;
+.workspace-code-editor {
   min-height: 0;
   flex: 1;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  background: #0d0d0d;
-}
-
-.editor-header {
-  display: flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 0 12px;
-  border-bottom: 1px solid #2b2b2b;
-  background: #1e1e1e;
-}
-
-.editor-title {
-  font-weight: 700;
-}
-
-.lang-indicator {
-  margin-left: auto;
-  padding: 2px 7px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-secondary);
-  font-family: monospace;
-  font-size: 0.74rem;
 }
 
 .tabs-nav {
@@ -723,7 +689,7 @@ function getScoreColorClass(score) {
     overflow: visible;
   }
 
-  .editor-shell {
+  .workspace-code-editor {
     min-height: 560px;
   }
 }
@@ -743,7 +709,7 @@ function getScoreColorClass(score) {
     padding: 12px;
   }
 
-  .editor-shell {
+  .workspace-code-editor {
     min-height: 430px;
   }
 

@@ -39,6 +39,7 @@
           :indent-with-tab="true"
           :tab-size="4"
           :extensions="extensions"
+          @ready="handleReady"
           @change="handleChange"
         />
       </div>
@@ -59,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, nextTick, watch } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { EditorView } from '@codemirror/view'
 import { oneDark } from '@codemirror/theme-one-dark'
@@ -68,28 +69,42 @@ import { java } from '@codemirror/lang-java'
 import { cpp } from '@codemirror/lang-cpp'
 import { javascript } from '@codemirror/lang-javascript'
 import { go } from '@codemirror/lang-go'
+import { issueDecorationsExtension, issueGutter, setIssuesEffect } from '@/components/editor/issueDecorations'
 
 const props = defineProps({
-  modelValue: String,
-  language: { type: String, default: 'Python' }
+  modelValue: { type: String, default: '' },
+  language: { type: String, default: 'Python' },
+  issues: { type: Array, default: () => [] },
+  enabledSeverities: { type: Object, default: null }
 })
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'line-focus'])
 
 const mode = ref('paste')
 const code = ref(props.modelValue)
+const view = ref(null)
 
 watch(() => props.modelValue, (newVal) => {
   if (newVal !== code.value) {
     code.value = newVal
   }
+  nextTick(() => dispatchIssues())
 })
+
+watch(() => [props.issues, props.enabledSeverities], () => {
+  dispatchIssues()
+}, { deep: true })
 
 const handleChange = (newVal) => {
   emit('update:modelValue', newVal)
 }
 
 const extensions = computed(() => {
-  const exts = [oneDark, EditorView.lineWrapping]
+  const exts = [
+    oneDark,
+    EditorView.lineWrapping,
+    issueDecorationsExtension(),
+    issueGutter(props.issues)
+  ]
   switch (props.language) {
     case 'Python': exts.push(python()); break
     case 'Java': exts.push(java()); break
@@ -100,6 +115,36 @@ const extensions = computed(() => {
   }
   return exts
 })
+
+function handleReady(payload) {
+  view.value = payload.view
+  dispatchIssues()
+}
+
+function dispatchIssues() {
+  if (!view.value) return
+  view.value.dispatch({
+    effects: setIssuesEffect.of({
+      issues: props.issues,
+      enabledSeverities: props.enabledSeverities
+    })
+  })
+}
+
+function focusLine(lineNumber) {
+  if (!view.value || !lineNumber) return
+  mode.value = 'paste'
+  nextTick(() => {
+    const line = view.value.state.doc.line(Math.min(lineNumber, view.value.state.doc.lines))
+    view.value.dispatch({
+      selection: { anchor: line.from },
+      effects: EditorView.scrollIntoView(line.from, { y: 'center' })
+    })
+    emit('line-focus', lineNumber)
+  })
+}
+
+defineExpose({ focusLine })
 
 // --- 文件上传逻辑 ---
 const processFile = (file) => {
@@ -217,6 +262,36 @@ const handleDrop = (event) => {
   background-color: #0d0d0d;
   border-right: 1px solid #2b2b2b;
   color: #4a4a4a;
+}
+
+:deep(.cm-issue-line) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+:deep(.cm-issue-high),
+:deep(.cm-issue-critical) {
+  background: rgba(239, 68, 68, 0.18);
+}
+
+:deep(.cm-issue-medium) {
+  background: rgba(245, 158, 11, 0.16);
+}
+
+:deep(.cm-issue-low),
+:deep(.cm-issue-info) {
+  background: rgba(59, 130, 246, 0.14);
+}
+
+:deep(.cm-issue-gutter) {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  color: white;
 }
 
 /* 拖拽上传美化 */
