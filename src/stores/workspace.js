@@ -49,6 +49,11 @@ export const useWorkspaceStore = defineStore('workspace-v2', () => {
   async function analyze(signal) {
     error.value = ''
     notice.value = ''
+    if (privacyCodeProtected.value) {
+      notice.value = '隐私代码已被保护，请先重置或恢复包含源码的历史记录后再分析。'
+      status.value = 'idle'
+      return
+    }
     privacyCodeProtected.value = false
     status.value = 'analyzing'
     try {

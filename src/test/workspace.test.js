@@ -1,10 +1,21 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import v2Api from '@/services/v2Api'
 import { useWorkspaceStore } from '@/stores/workspace'
+
+vi.mock('@/services/v2Api', () => ({
+  default: {
+    analyze: vi.fn(),
+    getRuleSets: vi.fn(),
+    getRun: vi.fn(),
+    getRuns: vi.fn()
+  }
+}))
 
 describe('workspace store', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    vi.clearAllMocks()
   })
 
   it('restores run detail with code and issues', () => {
@@ -87,5 +98,18 @@ describe('workspace store', () => {
     expect(store.issues).toEqual([])
     expect(store.selectedRuleSetId).toBe('')
     expect(store.privacyCodeProtected).toBe(false)
+  })
+
+  it('does not analyze protected privacy history code', async () => {
+    const store = useWorkspaceStore()
+    store.privacyCodeProtected = true
+    store.code = 'current draft'
+
+    await store.analyze()
+
+    expect(v2Api.analyze).not.toHaveBeenCalled()
+    expect(store.status).toBe('idle')
+    expect(store.privacyCodeProtected).toBe(true)
+    expect(store.notice).toContain('隐私代码已被保护')
   })
 })

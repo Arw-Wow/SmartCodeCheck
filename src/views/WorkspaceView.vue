@@ -93,7 +93,14 @@
 
         <div class="panel-footer">
           <div class="action-row">
-            <button v-if="!workspace.isAnalyzing" class="btn-action primary" data-tour-id="workspace-analyze" @click="handleAnalyze">
+            <button
+              v-if="!workspace.isAnalyzing"
+              class="btn-action primary"
+              data-tour-id="workspace-analyze"
+              :disabled="workspace.privacyCodeProtected"
+              :title="workspace.privacyCodeProtected ? '隐私代码已被保护，不能运行深度分析' : ''"
+              @click="handleAnalyze"
+            >
               深度分析
             </button>
             <button v-else class="btn-action danger pulsate" @click="handleStop">
@@ -247,6 +254,7 @@ watch(
 )
 
 async function handleAnalyze() {
+  if (workspace.privacyCodeProtected) return toast.warning('隐私代码已被保护，请先重置或恢复包含源码的历史记录后再分析')
   if (!workspace.code.trim()) return toast.warning('请输入需要检测的代码')
   if (!workspace.selectedDimensions.length) return toast.warning('请至少选择一个检测维度')
   activeTab.value = 'result'
@@ -505,6 +513,12 @@ function getScoreColorClass(score) {
   border: 1px solid rgba(148, 163, 184, 0.28);
   background: rgba(148, 163, 184, 0.12);
   color: var(--text-primary);
+}
+
+.btn-action:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+  opacity: 0.5;
 }
 
 .error-tip {
