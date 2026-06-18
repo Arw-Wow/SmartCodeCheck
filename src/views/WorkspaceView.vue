@@ -73,7 +73,7 @@
 
           <label class="privacy-toggle">
             <input v-model="workspace.privacyMode" type="checkbox" />
-            <span>隐私模式：历史记录不保存源码</span>
+            <span>隐私模式：历史记录不会显示源码</span>
           </label>
 
           <details class="advanced-tools">
@@ -206,15 +206,20 @@
               <button
                 v-for="run in workspace.runs"
                 :key="run.id"
-                class="run-row"
+                :class="['run-row', { privacy: run.privacyMode }]"
+                :title="run.privacyMode ? '隐私模式：源码未保存，恢复后代码区会被锁定' : '常规记录：可恢复源码现场'"
                 @click="restoreRun(run.id)"
               >
-                <span>
-                  <strong>#{{ run.id }} · {{ run.language }}</strong>
+                <span class="run-main">
+                  <span class="run-heading">
+                    <i v-if="run.privacyMode" class="privacy-lock" aria-hidden="true"></i>
+                    <strong>#{{ run.id }} · {{ run.language }}</strong>
+                    <em v-if="run.privacyMode" class="privacy-badge">隐私保护</em>
+                  </span>
                   <small>{{ formatDate(run.createdAt) }} · {{ run.modelName }}</small>
                 </span>
                 <b>{{ run.score }}</b>
-                <em>{{ run.privacyMode ? '恢复结果' : '恢复现场' }}</em>
+                <em class="run-action">{{ run.privacyMode ? '仅恢复结果' : '恢复现场' }}</em>
               </button>
             </template>
           </section>
@@ -480,7 +485,7 @@ function getScoreColorClass(score) {
 .notice-tip,
 .warning-list p,
 .run-row small,
-.run-row em {
+.run-action {
   color: var(--text-secondary);
   font-size: 0.78rem;
 }
@@ -673,7 +678,7 @@ function getScoreColorClass(score) {
 
 .run-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 58px 76px;
+  grid-template-columns: minmax(0, 1fr) 58px 84px;
   align-items: center;
   gap: 10px;
   width: 100%;
@@ -685,19 +690,37 @@ function getScoreColorClass(score) {
   text-align: left;
 }
 
+.run-row.privacy {
+  border-color: rgba(96, 165, 250, 0.42);
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.16), rgba(15, 23, 42, 0.38));
+}
+
 .run-row:hover {
   border-color: var(--primary-color);
   background: rgba(47, 129, 247, 0.09);
 }
 
-.run-row span {
+.run-row.privacy:hover {
+  border-color: rgba(147, 197, 253, 0.72);
+  background: rgba(37, 99, 235, 0.2);
+}
+
+.run-main {
   display: grid;
   min-width: 0;
   gap: 4px;
 }
 
+.run-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+
 .run-row strong,
 .run-row small {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -708,9 +731,43 @@ function getScoreColorClass(score) {
   text-align: right;
 }
 
-.run-row em {
+.run-action {
   font-style: normal;
   text-align: right;
+}
+
+.privacy-lock {
+  position: relative;
+  flex: 0 0 auto;
+  width: 12px;
+  height: 10px;
+  border: 1.5px solid #93c5fd;
+  border-radius: 3px;
+}
+
+.privacy-lock::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  width: 7px;
+  height: 6px;
+  border: 1.5px solid #93c5fd;
+  border-bottom: 0;
+  border-radius: 7px 7px 0 0;
+  transform: translateX(-50%);
+}
+
+.privacy-badge {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border: 1px solid rgba(147, 197, 253, 0.48);
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.18);
+  color: #bfdbfe;
+  font-size: 0.7rem;
+  font-style: normal;
+  font-weight: 700;
 }
 
 @media (max-width: 1180px) {
