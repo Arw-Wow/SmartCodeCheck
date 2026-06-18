@@ -61,4 +61,31 @@ describe('workspace store', () => {
     expect(store.code).toBe('restored code')
     expect(store.privacyCodeProtected).toBe(false)
   })
+
+  it('resets workspace state to defaults', () => {
+    const store = useWorkspaceStore()
+    store.code = 'changed'
+    store.language = 'JavaScript'
+    store.modelName = 'custom-local'
+    store.selectedDimensions = ['security']
+    store.generationInstruction = 'extra context'
+    store.privacyMode = true
+    store.result = { score: 88 }
+    store.issues = [{ id: 'ISSUE-002' }]
+    store.selectedRuleSetId = '9'
+    store.privacyCodeProtected = true
+
+    store.reset()
+
+    expect(store.code).toBe('def run(user_input):\n    return eval(user_input)\n')
+    expect(store.language).toBe('Python')
+    expect(store.modelName).toBe('deepseek-v3.1')
+    expect(store.selectedDimensions).toEqual(['correctness', 'security', 'maintainability', 'robustness'])
+    expect(store.generationInstruction).toBe('')
+    expect(store.privacyMode).toBe(false)
+    expect(store.result).toBeNull()
+    expect(store.issues).toEqual([])
+    expect(store.selectedRuleSetId).toBe('')
+    expect(store.privacyCodeProtected).toBe(false)
+  })
 })

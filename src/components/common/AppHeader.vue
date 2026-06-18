@@ -99,7 +99,7 @@ const handleLogout = () => {
   text-decoration: none;
   flex: 1;      /* 占据左侧剩余空间 */
   min-width: 0; /* 防止极端情况下溢出 */
-  margin-left: -10px;
+  margin-left: 30px;
 }
 
 .logo-img {
@@ -227,6 +227,7 @@ const handleLogout = () => {
   flex: 1;                   /* 占据右侧剩余空间 */
   justify-content: flex-end; /* 内容靠右对齐 */
   min-width: 0;
+  margin-right: 30px;
 }
 
 .btn-ghost {

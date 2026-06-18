@@ -7,7 +7,7 @@
           智能代码<span class="gradient-text">质量工作台</span>
         </h1>
         <p class="subtitle">
-          面向日常开发、教学评测和团队审查，整合<span class="highlight">工作台分析、代码对比、批量评测和统计追踪</span>，
+          面向日常开发、研究评测和团队审查，整合<span class="highlight">工作台分析、代码对比、批量评测和统计追踪</span>，
           用统一流程完成代码质量发现、复核、沉淀与追踪。
         </p>
         

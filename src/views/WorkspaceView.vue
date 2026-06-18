@@ -92,12 +92,17 @@
         </div>
 
         <div class="panel-footer">
-          <button v-if="!workspace.isAnalyzing" class="btn-action primary" data-tour-id="workspace-analyze" @click="handleAnalyze">
-            深度分析
-          </button>
-          <button v-else class="btn-action danger pulsate" @click="handleStop">
-            终止分析
-          </button>
+          <div class="action-row">
+            <button v-if="!workspace.isAnalyzing" class="btn-action primary" data-tour-id="workspace-analyze" @click="handleAnalyze">
+              深度分析
+            </button>
+            <button v-else class="btn-action danger pulsate" @click="handleStop">
+              终止分析
+            </button>
+            <button class="btn-action secondary" @click="handleReset">
+              重置
+            </button>
+          </div>
           <p v-if="workspace.error" class="error-tip">{{ workspace.error }}</p>
           <p v-if="workspace.notice" class="notice-tip">{{ workspace.notice }}</p>
         </div>
@@ -255,6 +260,15 @@ function handleStop() {
   abortController?.abort()
 }
 
+function handleReset() {
+  abortController?.abort()
+  abortController = null
+  activeTab.value = 'result'
+  workspace.reset()
+  workspace.loadRuleSets()
+  toast.success('工作台已重置')
+}
+
 async function openHistory() {
   activeTab.value = 'history'
   await workspace.loadRuns()
@@ -267,6 +281,7 @@ async function restoreRun(runId) {
 }
 
 function focusIssue(issue) {
+  if (workspace.privacyCodeProtected) return
   const line = workspace.selectIssue(issue)
   if (line) editor.value?.focusLine(line)
 }
@@ -462,6 +477,12 @@ function getScoreColorClass(score) {
   font-size: 0.78rem;
 }
 
+.action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 82px;
+  gap: 8px;
+}
+
 .btn-action {
   width: 100%;
   min-height: 42px;
@@ -478,6 +499,12 @@ function getScoreColorClass(score) {
   border: 1px solid rgba(218, 54, 51, 0.35);
   background: rgba(218, 54, 51, 0.18);
   color: #ff7b72;
+}
+
+.btn-action.secondary {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--text-primary);
 }
 
 .error-tip {

@@ -11,6 +11,7 @@
         <button 
           class="editor-tab" 
           :class="{ active: mode === 'paste' }"
+          :disabled="privacyProtected"
           @click="mode = 'paste'"
         >
           编辑器
@@ -18,6 +19,7 @@
         <button 
           class="editor-tab" 
           :class="{ active: mode === 'upload' }"
+          :disabled="privacyProtected"
           @click="mode = 'upload'"
         >
           文件上传
@@ -30,37 +32,39 @@
     </div>
 
     <div class="editor-body-area">
-      <div v-show="mode === 'paste'" :class="['cm-layout-fixer', { protected: privacyProtected }]">
-        <codemirror
-          v-model="code"
-          placeholder="// 在此处粘贴代码，或使用上传功能..."
-          :style="{ height: '100%', fontSize: '14px' }"
-          :autofocus="true"
-          :indent-with-tab="true"
-          :tab-size="4"
-          :extensions="extensions"
-          @ready="handleReady"
-          @change="handleChange"
-        />
-      </div>
-
-      <div v-if="privacyProtected && mode === 'paste'" class="privacy-protected-overlay" aria-live="polite">
+      <div v-if="privacyProtected" class="privacy-protected-overlay" aria-live="polite" @wheel.prevent>
         <div class="privacy-lock-icon" aria-hidden="true"></div>
         <strong>隐私代码已被保护</strong>
-        <span>该历史记录未保存源码，仅恢复检测结果。当前编辑器内容不会被历史源码覆盖。</span>
+        <span>该历史记录未保存源码，仅恢复检测结果。代码编辑区已锁定。</span>
       </div>
 
-      <div v-show="mode === 'upload'" class="upload-area" @dragover.prevent @drop.prevent="handleDrop">
-        <div class="upload-box-modern">
-          <h4 class="upload-title">拖拽文件到这里</h4>
-          <p class="upload-subtitle">支持 .py, .java, .cpp, .js 等源码文件</p>
-          
-          <label class="btn-select-file">
-            选择文件
-            <input type="file" ref="fileInput" @change="handleFileSelect" accept=".py,.java,.cpp,.js,.ts,.go,.c,.h" />
-          </label>
+      <template v-else>
+        <div v-show="mode === 'paste'" class="cm-layout-fixer">
+          <codemirror
+            v-model="code"
+            placeholder="// 在此处粘贴代码，或使用上传功能..."
+            :style="{ height: '100%', fontSize: '14px' }"
+            :autofocus="true"
+            :indent-with-tab="true"
+            :tab-size="4"
+            :extensions="extensions"
+            @ready="handleReady"
+            @change="handleChange"
+          />
         </div>
-      </div>
+
+        <div v-show="mode === 'upload'" class="upload-area" @dragover.prevent @drop.prevent="handleDrop">
+          <div class="upload-box-modern">
+            <h4 class="upload-title">拖拽文件到这里</h4>
+            <p class="upload-subtitle">支持 .py, .java, .cpp, .js 等源码文件</p>
+            
+            <label class="btn-select-file">
+              选择文件
+              <input type="file" ref="fileInput" @change="handleFileSelect" accept=".py,.java,.cpp,.js,.ts,.go,.c,.h" />
+            </label>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -102,7 +106,9 @@ watch(() => [props.issues, props.enabledSeverities], () => {
 }, { deep: true })
 
 watch(() => props.privacyProtected, (isProtected) => {
-  if (isProtected) mode.value = 'paste'
+  if (!isProtected) return
+  mode.value = 'paste'
+  view.value = null
 })
 
 const handleChange = (newVal) => {
@@ -143,7 +149,7 @@ function dispatchIssues() {
 }
 
 function focusLine(lineNumber) {
-  if (!view.value || !lineNumber) return
+  if (props.privacyProtected || !view.value || !lineNumber) return
   mode.value = 'paste'
   nextTick(() => {
     const line = view.value.state.doc.line(Math.min(lineNumber, view.value.state.doc.lines))
@@ -238,6 +244,14 @@ const handleDrop = (event) => {
   border-top: 2px solid transparent; /* 顶部高亮条预留 */
 }
 .editor-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.03); }
+.editor-tab:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+.editor-tab:disabled:hover {
+  color: var(--text-secondary);
+  background: transparent;
+}
 .editor-tab.active {
   color: #fff;
   background: #0d0d0d; /* 与编辑器背景融为一体 */
@@ -263,9 +277,6 @@ const handleDrop = (event) => {
 /* CodeMirror 修正 */
 .cm-layout-fixer {
   position: absolute; top: 0; bottom: 0; left: 0; right: 0; height: 100%;
-}
-.cm-layout-fixer.protected {
-  filter: brightness(0.42) saturate(0.72);
 }
 :deep(.cm-editor) { height: 100%; outline: none; background: #0d0d0d !important; }
 :deep(.cm-scroller) {
@@ -317,10 +328,11 @@ const handleDrop = (event) => {
   justify-items: center;
   gap: 10px;
   padding: 24px;
-  background: rgba(3, 7, 18, 0.62);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: #030712;
   color: #f8fafc;
   text-align: center;
-  pointer-events: none;
 }
 
 .privacy-protected-overlay strong {
