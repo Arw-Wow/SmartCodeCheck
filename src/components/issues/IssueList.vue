@@ -49,15 +49,33 @@
         v-for="issue in issues"
         :key="issue.id"
         class="issue-row"
-        :class="issue.severity"
+        :class="severityClass(issue)"
+        :title="issue.description || issue.id"
         @click="emit('select', issue)"
       >
-        <span class="issue-main">
-          <strong>{{ issue.id }}</strong>
-          <span>{{ issue.description }}</span>
+        <span class="issue-head">
+          <span class="issue-identity">
+            <span class="severity-dot" aria-hidden="true"></span>
+            <strong>{{ issue.id }}</strong>
+          </span>
+          <span class="severity-pill">{{ severityLabel(issue.severity) }}</span>
         </span>
-        <span class="issue-meta">{{ severityLabel(issue.severity) }} · {{ dimensionLabel(issue.dimension) }} · {{ sourceLabel(issue.source) }}</span>
-        <span v-if="issue.line_start" class="issue-line">Ln {{ issue.line_start }}</span>
+
+        <span class="issue-description">{{ issue.description }}</span>
+
+        <span v-if="issue.suggestion" class="issue-suggestion">
+          <span class="suggestion-label">建议</span>
+          <span>{{ issue.suggestion }}</span>
+        </span>
+
+        <span class="issue-meta-row">
+          <span class="meta-chip">{{ dimensionLabel(issue.dimension) }}</span>
+          <span class="meta-chip">{{ sourceLabel(issue.source) }}</span>
+          <span v-if="issue.confidence !== undefined && issue.confidence !== null" class="meta-chip">
+            置信 {{ confidenceLabel(issue.confidence) }}
+          </span>
+          <span v-if="lineLabel(issue)" class="issue-line">{{ lineLabel(issue) }}</span>
+        </span>
       </button>
     </div>
   </div>
@@ -122,6 +140,29 @@ function sourceLabel(value) {
     'static+llm': '静态+AI',
     validation: '验证'
   }[value] || value
+}
+
+function severityClass(issue) {
+  return `severity-${normalizeSeverity(issue?.severity)}`
+}
+
+function normalizeSeverity(value) {
+  const severity = String(value || 'info').trim().toLowerCase()
+  return ['critical', 'high', 'medium', 'low', 'info'].includes(severity) ? severity : 'info'
+}
+
+function lineLabel(issue) {
+  const start = Number(issue?.line_start)
+  const end = Number(issue?.line_end)
+  if (!start) return ''
+  if (end && end !== start) return `Ln ${start}-${end}`
+  return `Ln ${start}`
+}
+
+function confidenceLabel(value) {
+  const numeric = Number(value)
+  if (Number.isNaN(numeric)) return value
+  return `${Math.round(Math.max(0, Math.min(1, numeric)) * 100)}%`
 }
 </script>
 
@@ -264,30 +305,191 @@ function sourceLabel(value) {
 
 .issue-rows {
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 .issue-row {
-  text-align: left;
-  padding: 10px;
-  display: grid;
-  gap: 6px;
+  --severity-color: #8b949e;
+  --severity-bg: rgba(139, 148, 158, 0.14);
+  --severity-border: rgba(139, 148, 158, 0.32);
+  background:
+    linear-gradient(90deg, var(--severity-bg) 0, rgba(255, 255, 255, 0.035) 42px),
+    rgba(255, 255, 255, 0.035);
+  border-color: var(--severity-border);
+  box-shadow: inset 3px 0 0 var(--severity-color);
   cursor: pointer;
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  padding: 11px 12px 12px;
+  position: relative;
+  text-align: left;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease, background 0.16s ease;
 }
 
 .issue-row:hover {
-  border-color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--severity-color), white 18%);
+  box-shadow: inset 3px 0 0 var(--severity-color), 0 12px 26px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 
-.issue-main {
-  display: grid;
-  gap: 4px;
+.issue-row:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--severity-color), white 24%);
+  outline-offset: 2px;
 }
 
-.issue-meta,
+.issue-row.severity-critical {
+  --severity-color: #ff6b6b;
+  --severity-bg: rgba(255, 107, 107, 0.12);
+  --severity-border: rgba(255, 107, 107, 0.36);
+}
+
+.issue-row.severity-high {
+  --severity-color: #f97316;
+  --severity-bg: rgba(249, 115, 22, 0.12);
+  --severity-border: rgba(249, 115, 22, 0.36);
+}
+
+.issue-row.severity-medium {
+  --severity-color: #facc15;
+  --severity-bg: rgba(250, 204, 21, 0.1);
+  --severity-border: rgba(250, 204, 21, 0.32);
+}
+
+.issue-row.severity-low {
+  --severity-color: #38bdf8;
+  --severity-bg: rgba(56, 189, 248, 0.1);
+  --severity-border: rgba(56, 189, 248, 0.3);
+}
+
+.issue-row.severity-info {
+  --severity-color: #a78bfa;
+  --severity-bg: rgba(167, 139, 250, 0.1);
+  --severity-border: rgba(167, 139, 250, 0.28);
+}
+
+.issue-head,
+.issue-identity,
+.issue-meta-row,
+.issue-suggestion {
+  align-items: center;
+  display: flex;
+  min-width: 0;
+}
+
+.issue-head {
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.issue-identity {
+  gap: 7px;
+}
+
+.issue-identity strong {
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  line-height: 1.2;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.severity-dot {
+  background: var(--severity-color);
+  border-radius: 999px;
+  box-shadow: 0 0 0 4px var(--severity-bg);
+  flex: 0 0 auto;
+  height: 8px;
+  width: 8px;
+}
+
+.severity-pill {
+  background: var(--severity-bg);
+  border: 1px solid var(--severity-border);
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--severity-color), white 20%);
+  flex: 0 0 auto;
+  font-size: 0.7rem;
+  font-weight: 750;
+  line-height: 1;
+  padding: 5px 7px;
+}
+
+.issue-description {
+  color: var(--text-primary);
+  display: block;
+  font-size: 0.84rem;
+  line-height: 1.42;
+  overflow-wrap: anywhere;
+}
+
+.issue-suggestion {
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  gap: 7px;
+  padding: 7px 8px;
+}
+
+.issue-suggestion span:last-child {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.suggestion-label {
+  border: 1px solid rgba(59, 130, 246, 0.34);
+  border-radius: 4px;
+  color: #93c5fd;
+  flex: 0 0 auto;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 3px 4px;
+}
+
+.issue-meta-row {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.meta-chip,
 .issue-line,
 .empty-state {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
+  line-height: 1.2;
+}
+
+.meta-chip,
+.issue-line {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  min-width: 0;
+  padding: 4px 7px;
+}
+
+.meta-chip {
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.issue-line {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.24);
+  color: #93c5fd;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.empty-state {
   color: var(--text-secondary);
 }
 
